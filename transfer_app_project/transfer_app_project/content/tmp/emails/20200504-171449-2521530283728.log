@@ -1,0 +1,54 @@
+Content-Type: multipart/alternative;
+ boundary="===============4541312020513916707=="
+MIME-Version: 1.0
+Subject: Profile activation
+From: freetransfer.web@gmail.com
+To: angheluta.filip@cnlazar.ro
+Date: Mon, 04 May 2020 14:14:49 -0000
+Message-ID: 
+ <158860168974.14976.10199351917500171554@DESKTOP-1E3MLMQ.rcs-rds.ro>
+
+--===============4541312020513916707==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+
+
+To activate your profile, please follow this link:
+
+http://127.0.0.1:8000/activate/Y8PjivuLNV0m1pJ3wf2W/
+
+--===============4541312020513916707==
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Profile activation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+
+<p>
+    To activate your profile, please follow this link:
+</p>
+
+<p>
+    <a href="http://127.0.0.1:8000/activate/Y8PjivuLNV0m1pJ3wf2W/">http://127.0.0.1:8000/activate/Y8PjivuLNV0m1pJ3wf2W/</a>
+</p>
+
+</body>
+
+</html>
+
+--===============4541312020513916707==--
+
+-------------------------------------------------------------------------------

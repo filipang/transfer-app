@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+{% load static %}
+{% load bootstrap4 %}
+{% load i18n %}
+
+{% get_current_language as language_code %}
+<html lang="{{ language_code }}">
+    <head>
+        <meta charset="UTF-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js" type="text/javascript"></script>
+        <title>Upload a file!</title>
+    </head>
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+    <body>
+        <nav class="navbar navbar-default bg-primary">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <img class="navbar-brand bg-secondary nopadding margin5" src="{% static 'free-transfer-logo.png' %}"></img>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="navbar-text-style {% if request.resolver_match.url_name == 'upload' %} active {% endif %}"><a class="padding20" href="{% url 'transfers:upload' %}">Home<span class="sr-only">(current)</span></a></li>
+                        {% if request.user.is_authenticated %}
+                        <li class="navbar-text-style {% if request.resolver_match.url_name == 'profile' %} active {% endif %}"><a class="padding20" href="{% url 'accounts:profile' request.user.get_username %}">My profile</a></li>
+                        <li class="dropdown navbar-text-style">
+                            <a href="#" class="dropdown-toggle padding20" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account<span class="caret"></span></a>
+                            <ul class="dropdown-menu bg-primary">
+                                <li><a href="{% url 'accounts:log_out' %}">Log out</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{% url 'accounts:change_email' %}">Change email</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{% url 'accounts:change_password' %}" >Change password</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="{% url 'accounts:change_profile' %}">Change profile</a></li>
+                            </ul>
+                        </li>
+                        {% else %}
+                        <li class="navbar-text-style"><a class="padding20" href="{% url 'accounts:log_in' %}">Log in</a></li>
+                        <li class="navbar-text-style"><a class="padding20" href="{% url 'accounts:sign_up' %}">Sign up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <div class="container-fluid mt-3">
+
+            {% bootstrap_messages %}
+
+            {% block content %}
+                No content.
+            {% endblock %}
+
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="{% static 'vendor/popper/popper.min.js' %}"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <script src="{% static 'js/ie10-viewport-bug-workaround.js' %}"></script>
+    </body>
+</html>

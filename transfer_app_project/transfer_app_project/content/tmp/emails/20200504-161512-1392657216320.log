@@ -1,0 +1,54 @@
+Content-Type: multipart/alternative;
+ boundary="===============3272833871671076241=="
+MIME-Version: 1.0
+Subject: Change email
+From: smart.filip48@gmail.com
+To: smart.filip48@gmail.com
+Date: Mon, 04 May 2020 13:15:12 -0000
+Message-ID: 
+ <158859811294.14344.10891568205680167604@DESKTOP-1E3MLMQ.rcs-rds.ro>
+
+--===============3272833871671076241==
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+
+
+To change your current email address, please follow the link:
+
+http://127.0.0.1:8000/change/email/sogLfUlrh2MzFCocc8Ph/
+
+--===============3272833871671076241==
+Content-Type: text/html; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <title>Change email</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+</head>
+
+<body>
+
+<p>
+    To change your current email address, please follow the link:
+</p>
+
+<p>
+    <a href="http://127.0.0.1:8000/change/email/sogLfUlrh2MzFCocc8Ph/">http://127.0.0.1:8000/change/email/sogLfUlrh2MzFCocc8Ph/</a>
+</p>
+
+</body>
+
+</html>
+
+--===============3272833871671076241==--
+
+-------------------------------------------------------------------------------
