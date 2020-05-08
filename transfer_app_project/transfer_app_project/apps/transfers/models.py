@@ -3,6 +3,9 @@ from django.db import models
 from datetime import datetime
 from datetime import timedelta
 from django.contrib.auth.models import User
+from notifications.signals import notify
+
+from django.db.models.signals import post_save
 
 
 class Package(models.Model):

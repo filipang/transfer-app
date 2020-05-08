@@ -1,0 +1,74 @@
+{% extends 'layouts/default/base.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+
+    <style>
+
+      p{
+        color:black;
+      }
+
+    </style>
+
+    <div style="margin: 0 auto; width: 1000px;text-align: center;">
+        <h1>Send your files</h1>
+
+        <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:23px">
+            Drag and drop one or more files anywhere on the page...
+        </div>
+        <br>
+        <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
+            The file transfer is peer-to-peer, meaning that the files can only be downloaded as long as you hold this tab open!
+        </div>
+        {% if not is_link %}
+         <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
+            Your peer will recieve a notification once you've dropped your files here.
+        </div>
+        {% endif %}
+        <h2>Log:</h2>
+        <div class="log" style="text-align: left!important;"></div>
+    </div>
+
+      <!-- Include the latest version of WebTorrent -->
+    <script src="https://cdn.jsdelivr.net/npm/webtorrent@latest/webtorrent.min.js"></script>
+    <script src="https://bundle.run/drag-drop@6.0.0"></script>
+
+    <script>
+      var client = new WebTorrent()
+
+      dragDrop('body', function (files) {
+            console.log('AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA')
+            client.seed(files, function (torrent) {
+              console.log('Client is seeding ' + torrent.magnetURI)
+
+              log('<a style="color:blue!important;font-size:25px;font-weight:600;" href= "' + 'http://127.0.0.1:8000/live_transfer_download/' + torrent.magnetURI + '">Download link for ' + files.length + ' files</a>')
+              {% if not is_link %}
+                  $.ajax({
+                        type:'POST',
+                        url:'/invite_transfer/{{username}}/' + torrent.magnetURI ,
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                        },
+                        success:function(json){
+                            log('<p  style="color:blue!important;font-size:25px;font-weight:600;">Sent a transfer request to {{username}}</p>');
+                        },
+                        error : function(xhr,errmsg,err) {
+                            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        },
+                  });
+              {% endif %}
+            })
+      })
+
+      function log (str) {
+        var p = document.createElement('p')
+        p.innerHTML = str
+        var l = document.querySelector('.log').appendChild(p)
+      }
+
+    </script>
+
+{% endblock %}

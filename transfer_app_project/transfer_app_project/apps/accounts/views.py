@@ -2,11 +2,12 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate, REDIRECT_FIELD_NAME
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import User
 from django.contrib.auth.views import (
     LogoutView as BaseLogoutView, PasswordChangeView as BasePasswordChangeView,
     PasswordResetDoneView as BasePasswordResetDoneView, PasswordResetConfirmView as BasePasswordResetConfirmView,
 )
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.crypto import get_random_string
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
@@ -16,18 +17,21 @@ from django.utils.translation import gettext_lazy as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.debug import sensitive_post_parameters
-from django.views.generic import View, FormView
+from django.views.generic import View, FormView, ListView
 from django.conf import settings
+from django.db.models import Q
+from django.http import HttpResponse
+from django.http import JsonResponse
 
 from .utils import (
-    send_activation_email, send_reset_password_email, send_forgotten_username_email, send_activation_change_email,
+    send_activation_email, send_reset_password_email, send_forgotten_username_email, send_activation_change_email, BasePageMixin
 )
 from .forms import (
     SignInViaUsernameForm, SignInViaEmailForm, SignInViaEmailOrUsernameForm, SignUpForm,
     RestorePasswordForm, RestorePasswordViaEmailOrUsernameForm, RemindUsernameForm,
     ResendActivationCodeForm, ResendActivationCodeViaEmailForm, ChangeProfileForm, ChangeEmailForm,
 )
-from .models import Activation
+from .models import Activation, Friendship, FriendRequest
 
 
 class GuestOnlyView(View):
@@ -39,7 +43,7 @@ class GuestOnlyView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
-class LogInView(GuestOnlyView, FormView):
+class LogInView(GuestOnlyView, FormView, BasePageMixin):
     template_name = 'accounts/log_in.html'
 
     @staticmethod
@@ -85,7 +89,7 @@ class LogInView(GuestOnlyView, FormView):
         return redirect(settings.LOGIN_REDIRECT_URL)
 
 
-class SignUpView(GuestOnlyView, FormView):
+class SignUpView(GuestOnlyView, FormView, BasePageMixin):
     template_name = 'accounts/sign_up.html'
     form_class = SignUpForm
 
@@ -133,7 +137,7 @@ class SignUpView(GuestOnlyView, FormView):
         return redirect('/')
 
 
-class ActivateView(View):
+class ActivateView(View, BasePageMixin):
     @staticmethod
     def get(request, code):
         act = get_object_or_404(Activation, code=code)
@@ -151,7 +155,7 @@ class ActivateView(View):
         return redirect('accounts:log_in')
 
 
-class ResendActivationCodeView(GuestOnlyView, FormView):
+class ResendActivationCodeView(GuestOnlyView, FormView, BasePageMixin):
     template_name = 'accounts/resend_activation_code.html'
 
     @staticmethod
@@ -181,7 +185,7 @@ class ResendActivationCodeView(GuestOnlyView, FormView):
         return redirect('accounts:resend_activation_code')
 
 
-class RestorePasswordView(GuestOnlyView, FormView):
+class RestorePasswordView(GuestOnlyView, FormView, BasePageMixin):
     template_name = 'accounts/restore_password.html'
 
     @staticmethod
@@ -201,7 +205,7 @@ class RestorePasswordView(GuestOnlyView, FormView):
         return redirect('accounts:restore_password_done')
 
 
-class ChangeProfileView(LoginRequiredMixin, FormView):
+class ChangeProfileView(LoginRequiredMixin, FormView, BasePageMixin):
     template_name = 'accounts/profile/change_profile.html'
     form_class = ChangeProfileForm
 
@@ -223,28 +227,27 @@ class ChangeProfileView(LoginRequiredMixin, FormView):
         return redirect('accounts:change_profile')
 
 
-class ProfileView(LoginRequiredMixin, FormView):
-    template_name = 'accounts/profile/change_profile.html'
-    form_class = ChangeProfileForm
+class ProfileView(View, BasePageMixin):
+    template_name = 'accounts/profile.html'
 
-    def get_initial(self):
-        user = self.request.user
-        initial = super().get_initial()
-        initial['first_name'] = user.first_name
-        initial['last_name'] = user.last_name
-        return initial
+    def get(self, request, username):
+        context = self.get_context_data(request=request)
 
-    def form_valid(self, form):
-        user = self.request.user
-        user.first_name = form.cleaned_data['first_name']
-        user.last_name = form.cleaned_data['last_name']
-        user.save()
+        user = User.objects.get(username=username)
 
-        messages.success(self.request, _('Profile data has been successfully updated.'))
+        is_friend = (request.user.friendships1.all() & user.friendships2.all()).exists() or (request.user.friendships2.all()  & user.friendships1.all()).exists()
 
-        return redirect('accounts:change_profile')
+        is_pending = (request.user.friend_requests_sender.all() & user.friend_requests_recipient.all()).exists()
 
-class ChangeEmailView(LoginRequiredMixin, FormView):
+        can_add = not(is_friend or is_pending)
+
+        print(request.user.friend_requests_sender.all())
+
+        context.update(dict(username=username, user=user, is_friend=is_friend, is_pending=is_pending, can_add=can_add))
+
+        return render(request, self.template_name, context)
+
+class ChangeEmailView(LoginRequiredMixin, FormView, BasePageMixin):
     template_name = 'accounts/profile/change_email.html'
     form_class = ChangeEmailForm
 
@@ -283,7 +286,7 @@ class ChangeEmailView(LoginRequiredMixin, FormView):
         return redirect('accounts:change_email')
 
 
-class ChangeEmailActivateView(View):
+class ChangeEmailActivateView(View, BasePageMixin):
     @staticmethod
     def get(request, code):
         act = get_object_or_404(Activation, code=code)
@@ -301,7 +304,7 @@ class ChangeEmailActivateView(View):
         return redirect('accounts:change_email')
 
 
-class RemindUsernameView(GuestOnlyView, FormView):
+class RemindUsernameView(GuestOnlyView, FormView, BasePageMixin):
     template_name = 'accounts/remind_username.html'
     form_class = RemindUsernameForm
 
@@ -314,7 +317,7 @@ class RemindUsernameView(GuestOnlyView, FormView):
         return redirect('accounts:remind_username')
 
 
-class ChangePasswordView(BasePasswordChangeView):
+class ChangePasswordView(BasePasswordChangeView, BasePageMixin):
     template_name = 'accounts/profile/change_password.html'
 
     def form_valid(self, form):
@@ -329,7 +332,7 @@ class ChangePasswordView(BasePasswordChangeView):
         return redirect('accounts:change_password')
 
 
-class RestorePasswordConfirmView(BasePasswordResetConfirmView):
+class RestorePasswordConfirmView(BasePasswordResetConfirmView, BasePageMixin):
     template_name = 'accounts/restore_password_confirm.html'
 
     def form_valid(self, form):
@@ -341,9 +344,78 @@ class RestorePasswordConfirmView(BasePasswordResetConfirmView):
         return redirect('accounts:log_in')
 
 
-class RestorePasswordDoneView(BasePasswordResetDoneView):
+class RestorePasswordDoneView(BasePasswordResetDoneView, BasePageMixin):
     template_name = 'accounts/restore_password_done.html'
 
 
-class LogOutView(LoginRequiredMixin, BaseLogoutView):
+class LogOutView(LoginRequiredMixin, BaseLogoutView, BasePageMixin):
     template_name = 'accounts/log_out.html'
+
+class FriendsView(LoginRequiredMixin, View, BasePageMixin):
+    template_name = 'accounts/friends.html'
+
+class AddFriendView(LoginRequiredMixin, View, BasePageMixin):
+    @staticmethod
+    def post(request, username):
+        user = get_object_or_404(User, username=username)
+        f_request = FriendRequest.objects.create(sender=request.user, recipient=user)
+        print(f_request.sender)
+        print(" sent a request to ")
+        print(f_request.recipient)
+        f_request.save()
+        messages.success(request, _('Friend request sent!'))
+
+        return redirect('transfers:upload')
+
+class RemoveFriendView(LoginRequiredMixin, View, BasePageMixin):
+    @staticmethod
+    def get(request, username):
+        user = get_object_or_404(User, username=username)
+        Friendship.objects.get(Q(user1=user)|Q(user2=user)).delete()
+        messages.success(request, _(''.join([username, ' has been removed from your friend list.'])))
+
+        return redirect('transfers:upload')
+
+class AcceptFriendView(LoginRequiredMixin, View, BasePageMixin):
+    @staticmethod
+    def post(request, username):
+        user = get_object_or_404(User, username=username)
+        if FriendRequest.objects.filter(sender=user, recipient=request.user).count() > 0 :
+            friendship = Friendship.objects.create(user1=user, user2=request.user)
+            friendship.save()
+            FriendRequest.objects.get(sender=user, recipient=request.user).delete()
+            messages.success(request, _('Friend request accepted!'))
+        else:
+
+            messages.error(request, _('Request doesn\'t exist!'))
+
+        return JsonResponse({'username':username})
+
+class DeclineFriendView(LoginRequiredMixin, View, BasePageMixin):
+    @staticmethod
+    def post(request, username):
+        FriendRequest.objects.get(sender=user, reciever=request.user).delete()
+        user = get_object_or_404(User, username=username)
+        messages.success(request, _(''.join([username, '\'s friend request has been declined.'])))
+        if FriendRequest.objects.filter(sender=user, recipient=request.user).count() > 0 :
+
+            friendship = Friendship.objects.create(user1=user, user2=request.user).delete()
+            friendship.save()
+            messages.success(request, _('Friend request accepted!'))
+
+        return JsonResponse({'username':username})
+
+class SearchUserView(LoginRequiredMixin, View, BasePageMixin):
+    template_name = 'accounts/search_user.html'
+
+    def get(self, request):
+        context = self.get_context_data(request=request)
+        if request.GET.urlencode() != '':
+            print(list(User.objects.filter(username__icontains=request.GET.get('query',''))))
+            context.update(dict(users_found = User.objects.filter(username__icontains=request.GET.get('query',''))))
+        return render(request, self.template_name, context)
+
+class ClearNotificationsView(LoginRequiredMixin, View, BasePageMixin):
+    def post(self, request):
+        request.user.notifications.all().delete()
+        return JsonResponse({'request':'la dee da'})

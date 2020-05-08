@@ -10,12 +10,18 @@ class Activation(models.Model):
 
 class Friendship(models.Model):
     id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
-    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='%(class)s_user1')
-    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='%(class)s_user2')
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships1')
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friendships2')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user1', 'user2')
 
 class FriendRequest(models.Model):
     id = models.UUIDField(primary_key = True, default = uuid.uuid4, editable = False)
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='%(class)s_sender')
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='%(class)s_recipient')
+    sender_fr = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_requests_sender')
+    recipient_fr = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_requests_recipient')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('sender_fr', 'recipient_fr')
