@@ -21,12 +21,18 @@
         </div>
         <br>
         <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
-            The file transfer is peer-to-peer, meaning that the files can only be downloaded as long as you hold this tab open!
+            The file transfer is peer-to-peer, meaning that the files can only be downloaded as long as you hold this tab open! <br>(Anyone that has a link can download the files, but don't worry, they won't have it unless send it to them!)
         </div>
-        {% if not is_link %}
-         <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
-            Your peer will recieve a notification once you've dropped your files here.
-        </div>
+        {%if request.user.is_authenticated %}
+            {% if not is_link %}
+             <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
+                Your peer will recieve a notification once you've dropped your files here.
+            </div>
+            {% else %}
+            <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
+                You will recieve a notification once you've dropped your files here.
+            </div>
+            {% endif %}
         {% endif %}
         <h2>Log:</h2>
         <div class="log" style="text-align: left!important;"></div>
@@ -45,20 +51,36 @@
               console.log('Client is seeding ' + torrent.magnetURI)
 
               log('<a style="color:blue!important;font-size:25px;font-weight:600;" href= "' + 'http://127.0.0.1:8000/live_transfer_download/' + torrent.magnetURI + '">Download link for ' + files.length + ' files</a>')
-              {% if not is_link %}
-                  $.ajax({
-                        type:'POST',
-                        url:'/invite_transfer/{{username}}/' + torrent.magnetURI ,
-                        data:{
-                            csrfmiddlewaretoken: '{{ csrf_token }}',
-                        },
-                        success:function(json){
-                            log('<p  style="color:blue!important;font-size:25px;font-weight:600;">Sent a transfer request to {{username}}</p>');
-                        },
-                        error : function(xhr,errmsg,err) {
-                            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                        },
-                  });
+              {%if request.user.is_authenticated %}
+                  {% if not is_link %}
+                      $.ajax({
+                            type:'POST',
+                            url:'/invite_transfer/{{username}}/' + torrent.magnetURI ,
+                            data:{
+                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                            },
+                            success:function(json){
+                                log('<p  style="color:blue!important;font-size:25px;font-weight:600;">Sent a transfer request to {{username}}</p>');
+                            },
+                            error : function(xhr,errmsg,err) {
+                                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                            },
+                      });
+                  {% else %}
+                        $.ajax({
+                            type:'POST',
+                            url:'/invite_transfer/{{request.user.username}}/' + torrent.magnetURI ,
+                            data:{
+                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                            },
+                            success:function(json){
+                                log('<p  style="color:blue!important;font-size:25px;font-weight:600;">Sent a transfer request to yourself</p>');
+                            },
+                            error : function(xhr,errmsg,err) {
+                                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                            },
+                      });
+                  {% endif %}
               {% endif %}
             })
       })

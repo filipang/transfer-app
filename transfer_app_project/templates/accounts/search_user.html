@@ -13,11 +13,13 @@
           <input class="form-control mr-sm-2" id='search_users_form' type="text" placeholder="Search" aria-label="Search">
           <button class="btn btn-elegant btn-rounded btn-sm my-0" id="search_users_btn" type="button">Search</button>
         </form>
+        <hr style="color:black;border-top: 1px solid #020202;">
         {% for user in users_found %}
             <div style="text-align: left;">
-                <img class="profile_img_friend inline"  src="{% static 'default.jpg' %}" alt="Profile Image">
+                <img class="profile_img_friend inline"  src="{{user.profileimage.image.url}}" alt="Profile Image">
                 <a class="inline" style="color:black; font-size: 20px; padding-left: 10px" href="{% url 'accounts:profile' user.username %}">{{user.username}}</a>
             </div>
+            <hr style="color:black;border-top: 1px solid #020202;">
         {% endfor %}
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>

@@ -4,7 +4,7 @@ from .views import (
     LogInView, ResendActivationCodeView, RemindUsernameView, SignUpView, ActivateView, LogOutView,
     ChangeEmailView, ChangeEmailActivateView, ChangeProfileView, ChangePasswordView,
     RestorePasswordView, RestorePasswordDoneView, RestorePasswordConfirmView, ProfileView,
-    FriendsView, AddFriendView, RemoveFriendView, AcceptFriendView, DeclineFriendView, SearchUserView, ClearNotificationsView
+    FriendsView, AddFriendView, RemoveFriendView, AcceptFriendView, DeclineFriendView, SearchUserView, ClearNotificationsView, ChangeProfileImageView
 )
 
 app_name = 'accounts'
@@ -24,6 +24,7 @@ urlpatterns = [
 
     path('remind/username/', RemindUsernameView.as_view(), name='remind_username'),
 
+    path('change/image/', ChangeProfileImageView.as_view(), name='change_image'),
     path('change/profile/', ChangeProfileView.as_view(), name='change_profile'),
     path('change/password/', ChangePasswordView.as_view(), name='change_password'),
     path('change/email/', ChangeEmailView.as_view(), name='change_email'),

@@ -29,9 +29,9 @@ from .utils import (
 from .forms import (
     SignInViaUsernameForm, SignInViaEmailForm, SignInViaEmailOrUsernameForm, SignUpForm,
     RestorePasswordForm, RestorePasswordViaEmailOrUsernameForm, RemindUsernameForm,
-    ResendActivationCodeForm, ResendActivationCodeViaEmailForm, ChangeProfileForm, ChangeEmailForm,
+    ResendActivationCodeForm, ResendActivationCodeViaEmailForm, ChangeProfileForm, ChangeEmailForm, ChangeProfileImageForm
 )
-from .models import Activation, Friendship, FriendRequest
+from .models import Activation, Friendship, FriendRequest, ProfileImage
 
 
 class GuestOnlyView(View):
@@ -108,6 +108,7 @@ class SignUpView(GuestOnlyView, FormView, BasePageMixin):
 
         # Create a user record
         user.save()
+        ProfileImage.objects.create(user=user)
 
         # Change the username to the "user_ID" form
         if settings.DISABLE_USERNAME:
@@ -225,6 +226,37 @@ class ChangeProfileView(LoginRequiredMixin, FormView, BasePageMixin):
         messages.success(self.request, _('Profile data has been successfully updated.'))
 
         return redirect('accounts:change_profile')
+
+
+
+class ChangeProfileImageView(LoginRequiredMixin, FormView, BasePageMixin):
+    template_name = 'accounts/profile/change_image.html'
+    form_class = ChangeProfileImageForm
+
+    def get_initial(self):
+        user = self.request.user
+        initial = super().get_initial()
+        return initial
+
+    def form_valid(self, form):
+        user = self.request.user
+        has_profile_image = False
+        try:
+            has_profile_image = (user.profileimage is not None)
+        except ProfileImage.DoesNotExist:
+            pass
+
+        if has_profile_image:
+            user.profileimage.delete()
+
+        profileimage = form.save(commit=False)
+        print(profileimage.image)
+        profileimage.user = user
+        profileimage.save()
+
+        messages.success(self.request, _('Profile image has been successfully updated.'))
+
+        return redirect('accounts:change_image')
 
 
 class ProfileView(View, BasePageMixin):
@@ -369,7 +401,7 @@ class AddFriendView(LoginRequiredMixin, View, BasePageMixin):
 
 class RemoveFriendView(LoginRequiredMixin, View, BasePageMixin):
     @staticmethod
-    def get(request, username):
+    def post(request, username):
         user = get_object_or_404(User, username=username)
         Friendship.objects.get(Q(user1=user)|Q(user2=user)).delete()
         messages.success(request, _(''.join([username, ' has been removed from your friend list.'])))

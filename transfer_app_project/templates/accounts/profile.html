@@ -8,7 +8,7 @@
 
     <div style="margin: 0 auto; width: 1000px;text-align: center;">
         <h4 style="font-size: 25px; padding-bottom: 25px;">Profile</h4>
-        <img class="profile_img"  src="{% static 'default.jpg' %}" alt="Profile Image">
+        <img class="profile_img"  src="{{request.user.profileimage.image.url}}" alt="Profile Image">
         <div class="inline" style="text-align: left;padding-left:20px">
             <p style="color:black; font-size: 25px">{{username}}</p>
             {% if username != request.user.username %}

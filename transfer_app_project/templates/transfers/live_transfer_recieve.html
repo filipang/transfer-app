@@ -79,7 +79,7 @@
             await sleep(10)
             var x = await file.getBlobURL(y = async function (err, url) {
               if (err) return await log(err.message)
-              var a = await log('<a style="font-weight:500" download href="' + url + '"> Download file: ' + file.name + '</a>')
+              var a = await log('<a style="font-weight:500" download href="' + url + '"> Save downloaded file: ' + file.name + '</a>')
               await sleep(10)
               return 0
             })

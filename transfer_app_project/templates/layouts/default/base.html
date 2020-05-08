@@ -20,6 +20,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
     </head>
     <body>
+        {% if request.user.is_authenticated %}
         <div class="wrapper">
             <nav id="sidebar" class = "active">
                 <ul class="list-unstyled">
@@ -29,7 +30,7 @@
                         <ul class="collapse list-unstyled" id="pageSubmenu">
                             {% for user in friend_request_users %}
                                 <li class="small_space_down sidebar_margin" username_req="{{ user.username }}">
-                                    <img class="profile_img_req"  src="{% static 'default.jpg' %}" alt="Profile Image">
+                                    <img class="profile_img_req"  src="{{user.profileimage.image.url}}" alt="Profile Image">
                                     <a class="inline" href="">{{ user.username }}</a>
                                     <button href="" class="inline small_button button_request_no" username_btn="{{ user.username }}">Nay</button>
                                     <button class="inline small_button button_request_yes" username_btn="{{ user.username }}">Yay</button>
@@ -37,17 +38,17 @@
                             {% endfor %}
                         </ul>
                     </li>
-                    <div style="height:35px;position:relative">
-                        <h5 class="inline sidebar_margin">Notifications ({% live_notify_badge %})</h5>
-                        <button style="color:black;  position: absolute;right: .5em;top: 50%;transform: translate(0,-50%);" class="inline clear_btn">Clear</button>
+                    <div style="height:70px;position:relative">
+                        <h5 style="margin-top:0px;margin-bottom:0px; position: absolute;left: .5em;top: 50%;transform: translate(0,-50%);" class="inline sidebar_margin">Notifications ({% live_notify_badge %})</h5>
+                        <button style="color:black;  position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);" class="inline clear_btn">Clear</button>
                     </div>
                     <div class="sidebar_margin">
                     {% live_notify_list %}
                     </div>
                     <li>
-                        <div class="sidebar-header">
-                            <h5 class="inline">Friend list ({{ friends|length }})</h5>
-                            <a style="float:right;" class="inline" href="{% url 'accounts:search' %}">Add friend</a>
+                        <div style="height:70px;position:relative" class="sidebar-header">
+                            <h5 style="margin-top:0px;margin-bottom:0px; position: absolute;left: 1em;top: 50%;transform: translate(0,-50%);" class="inline">Friend list ({{ friends|length }})</h5>
+                            <a style="position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);font-size:1em;" class="inline" href="{% url 'accounts:search' %}">Search users...</a>
                         </div>
                     </li>
                 </ul>
@@ -57,34 +58,22 @@
                 <ul class="list-unstyled list-group sidebar_margin" id = "friendList">
                     {% for friend in friends %}
                         <li class="dropdown small_space_down" username_friend="{{ friend.username }}">
-                            <img class="profile_img_friend"  src="{% static 'default.jpg' %}" alt="Profile Image">
+                            <img class="profile_img_friend"  src="{{friend.profileimage.image.url}}" alt="Profile Image">
                             <a class="dropdown-toggle inline" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 {{ friend.username }}
                             </a>
 
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                                 <a class="dropdown-item" href="{% url 'accounts:profile' friend.username %}">View profile</a>
-                                <a class="dropdown-item" href="#">Request Live Transfer</a>
-                                <a class="dropdown-item" href="{% url 'accounts:remove_friend' friend.username %}">Remove Friend</a>
+                                <a class="dropdown-item" href="{% url 'transfers:live_transfer' friend.username %}">Send files...</a>
+                                <a username_value = "{{friend.username}}" class="dropdown-item remove_friend_btn" href="">Remove Friend</a>
                             </div>
                         </li>
                     {% endfor %}
-
-                    <li class="dropdown small_space_down hidden">
-                            <img class="profile_img_friend"  src="{% static 'default.jpg' %}" alt="Profile Image">
-                            <a class="dropdown-toggle inline" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-
-                            </a>
-
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="">View profile</a>
-                                <a class="dropdown-item" href="">Request Live Transfer</a>
-                                <a class="dropdown-item" href="">Remove Friend</a>
-                            </div>
-                    </li>
                 </ul>
             </nav>
             <div id="content" class = "active">
+                {% endif %}
                 <nav class="navbar navbar-default bg-primary">
                     <div class="container-fluid">
                         <!-- Brand and toggle get grouped for better mobile display -->
@@ -114,11 +103,13 @@
                                         <li role="separator" class="divider"></li>
                                         <li><a href="{% url 'accounts:change_password' %}" >Change password</a></li>
                                         <li role="separator" class="divider"></li>
-                                        <li><a href="{% url 'accounts:change_profile' %}">Change profile</a></li>
+                                        <li><a href="{% url 'accounts:change_profile' %}">Change profile details</a></li>
+                                        <li role="separator" class="divider"></li>
+                                        <li><a href="{% url 'accounts:change_image' %}">Change profile image</a></li>
                                     </ul>
                                 </li>
                                 <li class="dropdown navbar-text-style">
-                                    <a href="#" class="dropdown-toggle padding20" type="button" id="sidebarCollapse">Friends
+                                    <a href="#" class="dropdown-toggle padding20" type="button" id="sidebarCollapse">Social({% live_notify_badge %})
                                         <i class="fas fa-align-left"></i>
                                         <span class="sr-only">(current)</span>
                                     </a>
@@ -140,9 +131,10 @@
                     {% endblock %}
 
                 </div>
+                {% if request.user.is_authenticated %}
             </div>
         </div>
-
+            {% endif %}
         <script src="{% static 'notifications/notify.js' %}" type="text/javascript"></script>
         {% register_notify_callbacks callbacks='fill_notification_list,fill_notification_badge' %}
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -168,41 +160,60 @@
                       $(this).toggle($(this).attr('username_friend').toLowerCase().indexOf(value) > -1)
                     });
                   });
-            });
 
-            $('.button_request_yes').on('click',function(e){
-                $.ajax({
-                    type:'POST',
-                    url:'accept_friend/' + $(this).attr('username_btn'),
-                    data:{
-                        csrfmiddlewaretoken: '{{ csrf_token }}',
-                    },
-                    success:function(json){
-                        $("li[username_req='" + json.username + "']").remove();
 
-                    },
-                    error : function(xhr,errmsg,err) {
-                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                    },
+                $('.button_request_yes').on('click',function(e){
+                    $.ajax({
+                        type:'POST',
+                        url:'accept_friend/' + $(this).attr('username_btn'),
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                        },
+                        success:function(json){
+                            $("li[username_req='" + json.username + "']").remove();
 
+                        },
+                        error : function(xhr,errmsg,err) {
+                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        },
+
+                    });
                 });
-            });
 
-             $('.clear_btn').on('click',function(e){
-                $.ajax({
-                    type:'POST',
-                    url:'{% url 'accounts:clear_notifications' %}',
-                    data:{
-                        csrfmiddlewaretoken: '{{ csrf_token }}',
-                    },
-                    success:function(json){
-                        $("li[username_req='" + json.username + "']").remove();
+                 $('.clear_btn').on('click',function(e){
+                    $.ajax({
+                        type:'POST',
+                        url:'{% url 'accounts:clear_notifications' %}',
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                        },
+                        success:function(json){
+                            $("li[username_req='" + json.username + "']").remove();
 
-                    },
-                    error : function(xhr,errmsg,err) {
-                    console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
-                    },
+                        },
+                        error : function(xhr,errmsg,err) {
+                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        },
 
+                    });
+                });
+
+                $('.remove_friend_btn').on("click", function(){
+                   $.ajax({
+                        type:'POST',
+                        url:'/remove_friend/' + $(this).attr('username_value'),
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                        },
+                        success:function(json){
+                            $("li[username_req='" + json.username + "']").remove();
+
+                        },
+                        error : function(xhr,errmsg,err) {
+                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        },
+
+                    });
                 });
             });
         </script>
