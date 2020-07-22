@@ -22,14 +22,18 @@ from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.http import JsonResponse
+from notifications.models import Notification
+from notifications.signals import notify
 
 from .utils import (
-    send_activation_email, send_reset_password_email, send_forgotten_username_email, send_activation_change_email, BasePageMixin
+    send_activation_email, send_reset_password_email, send_forgotten_username_email, send_activation_change_email,
+    BasePageMixin
 )
 from .forms import (
     SignInViaUsernameForm, SignInViaEmailForm, SignInViaEmailOrUsernameForm, SignUpForm,
     RestorePasswordForm, RestorePasswordViaEmailOrUsernameForm, RemindUsernameForm,
-    ResendActivationCodeForm, ResendActivationCodeViaEmailForm, ChangeProfileForm, ChangeEmailForm, ChangeProfileImageForm
+    ResendActivationCodeForm, ResendActivationCodeViaEmailForm, ChangeProfileForm, ChangeEmailForm,
+    ChangeProfileImageForm
 )
 from .models import Activation, Friendship, FriendRequest, ProfileImage
 
@@ -228,7 +232,6 @@ class ChangeProfileView(LoginRequiredMixin, FormView, BasePageMixin):
         return redirect('accounts:change_profile')
 
 
-
 class ChangeProfileImageView(LoginRequiredMixin, FormView, BasePageMixin):
     template_name = 'accounts/profile/change_image.html'
     form_class = ChangeProfileImageForm
@@ -249,10 +252,10 @@ class ChangeProfileImageView(LoginRequiredMixin, FormView, BasePageMixin):
         if has_profile_image:
             user.profileimage.delete()
 
-        profileimage = form.save(commit=False)
-        print(profileimage.image)
-        profileimage.user = user
-        profileimage.save()
+        profile_image = form.save(commit=False)
+        print(profile_image.image)
+        profile_image.user = user
+        profile_image.save()
 
         messages.success(self.request, _('Profile image has been successfully updated.'))
 
@@ -267,17 +270,19 @@ class ProfileView(View, BasePageMixin):
 
         user = User.objects.get(username=username)
 
-        is_friend = (request.user.friendships1.all() & user.friendships2.all()).exists() or (request.user.friendships2.all()  & user.friendships1.all()).exists()
+        is_friend = (request.user.friendships1.all() & user.friendships2.all()).exists() or (
+                    request.user.friendships2.all() & user.friendships1.all()).exists()
 
         is_pending = (request.user.friend_requests_sender.all() & user.friend_requests_recipient.all()).exists()
 
-        can_add = not(is_friend or is_pending)
+        can_add = not (is_friend or is_pending)
 
         print(request.user.friend_requests_sender.all())
 
         context.update(dict(username=username, user=user, is_friend=is_friend, is_pending=is_pending, can_add=can_add))
 
         return render(request, self.template_name, context)
+
 
 class ChangeEmailView(LoginRequiredMixin, FormView, BasePageMixin):
     template_name = 'accounts/profile/change_email.html'
@@ -383,59 +388,76 @@ class RestorePasswordDoneView(BasePasswordResetDoneView, BasePageMixin):
 class LogOutView(LoginRequiredMixin, BaseLogoutView, BasePageMixin):
     template_name = 'accounts/log_out.html'
 
+
 class FriendsView(LoginRequiredMixin, View, BasePageMixin):
     template_name = 'accounts/friends.html'
+
 
 class AddFriendView(LoginRequiredMixin, View, BasePageMixin):
     @staticmethod
     def post(request, username):
         user = get_object_or_404(User, username=username)
-        f_request = FriendRequest.objects.create(sender=request.user, recipient=user)
+
+        notification = notify.send(request.user,
+                                   recipient=user,
+                                   verb=' sent you a friend request!',
+                                   href="/accept_friend/" + request.user.username,
+                                   username=request.user.username,
+                                   image_path=request.user.profileimage.image.url,
+                                   type='FRIEND_REQUEST')
+
+        notification_obj = notification[0][1][0]
+
+        f_request = FriendRequest.objects.create(sender=request.user, recipient=user, notification=notification_obj)
         print(f_request.sender)
         print(" sent a request to ")
         print(f_request.recipient)
-        f_request.save()
         messages.success(request, _('Friend request sent!'))
 
+        f_request.save()
         return redirect('transfers:upload')
+
 
 class RemoveFriendView(LoginRequiredMixin, View, BasePageMixin):
     @staticmethod
     def post(request, username):
         user = get_object_or_404(User, username=username)
-        Friendship.objects.get(Q(user1=user)|Q(user2=user)).delete()
+        Friendship.objects.get(Q(user1=user) | Q(user2=user)).delete()
         messages.success(request, _(''.join([username, ' has been removed from your friend list.'])))
 
         return redirect('transfers:upload')
 
+
 class AcceptFriendView(LoginRequiredMixin, View, BasePageMixin):
-    @staticmethod
-    def post(request, username):
+    def post(self, request, username):
+        context = self.get_context_data(request=request)
         user = get_object_or_404(User, username=username)
-        if FriendRequest.objects.filter(sender=user, recipient=request.user).count() > 0 :
+        if FriendRequest.objects.filter(sender=user, recipient=request.user).count() > 0:
             friendship = Friendship.objects.create(user1=user, user2=request.user)
             friendship.save()
-            FriendRequest.objects.get(sender=user, recipient=request.user).delete()
+
+            #Deleting this the friend request's notification will also delete the friend request
+            FriendRequest.objects.get(sender=user, recipient=request.user).notification.delete()
+
             messages.success(request, _('Friend request accepted!'))
         else:
+            messages.error(request, _('Friend request doesn\'t exist!'))
 
-            messages.error(request, _('Request doesn\'t exist!'))
+        return JsonResponse({'username': username,
+                             'friends': context.friends})
 
-        return JsonResponse({'username':username})
 
 class DeclineFriendView(LoginRequiredMixin, View, BasePageMixin):
-    @staticmethod
-    def post(request, username):
-        FriendRequest.objects.get(sender=user, reciever=request.user).delete()
+    def post(self, request, username):
         user = get_object_or_404(User, username=username)
-        messages.success(request, _(''.join([username, '\'s friend request has been declined.'])))
-        if FriendRequest.objects.filter(sender=user, recipient=request.user).count() > 0 :
+        if FriendRequest.objects.filter(sender=user, recipient=request.user).count() > 0:
+            FriendRequest.objects.get(sender=user, recipient=request.user).notification.delete()
 
-            friendship = Friendship.objects.create(user1=user, user2=request.user).delete()
-            friendship.save()
-            messages.success(request, _('Friend request accepted!'))
+            messages.success(request, _(''.join([username, '\'s friend request has been declined.'])))
+        else:
+            messages.error(request, _('Friend request doesn\'t exist!'))
+        return JsonResponse({'username': username})
 
-        return JsonResponse({'username':username})
 
 class SearchUserView(LoginRequiredMixin, View, BasePageMixin):
     template_name = 'accounts/search_user.html'
@@ -443,11 +465,12 @@ class SearchUserView(LoginRequiredMixin, View, BasePageMixin):
     def get(self, request):
         context = self.get_context_data(request=request)
         if request.GET.urlencode() != '':
-            print(list(User.objects.filter(username__icontains=request.GET.get('query',''))))
-            context.update(dict(users_found = User.objects.filter(username__icontains=request.GET.get('query',''))))
+            print(list(User.objects.filter(username__icontains=request.GET.get('query', ''))))
+            context.update(dict(users_found=User.objects.filter(username__icontains=request.GET.get('query', ''))))
         return render(request, self.template_name, context)
+
 
 class ClearNotificationsView(LoginRequiredMixin, View, BasePageMixin):
     def post(self, request):
         request.user.notifications.all().delete()
-        return JsonResponse({'request':'la dee da'})
+        return JsonResponse({'request': 'la dee da'})

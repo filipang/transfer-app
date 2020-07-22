@@ -76,8 +76,6 @@ class BasePageMixin(generic.base.ContextMixin):
             friend_requests = list(self.request.user.friend_requests_recipient.all())
             friend_request_user_fks = list(f.sender.pk for f in friend_requests)
 
-
             context.update(dict(friend_request_users=query.filter(pk__in=friend_request_user_fks)))
-
 
         return context

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Session redirect..</title>
+</head>
+<body>
+    Please wait...
+    <script type="text/javascript">
+        window.location.href = '/live_transfer_session/' + '{{ session_id }}'
+    </script>
+</body>
+</html>

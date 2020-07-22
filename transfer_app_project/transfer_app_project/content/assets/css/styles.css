@@ -4,6 +4,23 @@
 
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
+.background_card{
+    margin: 0 auto;
+    width: 1000px;
+    text-align: center;
+    border-radius: 20px;
+    padding: 40px;
+}
+
+.no-margin {
+    margin: 0px !important;
+}
+
+.selectable-notification:hover {
+    background:#c78e06!important;
+    cursor: pointer;
+}
+
 .small_button {
     font-size: 10px;
     color:black;
@@ -13,12 +30,13 @@
     height:40px;
 }
 
-.small_space_down {
-    padding-bottom: 2px;
-}
-
 .sidebar_margin {
     margin-left: 7px;
+    padding-right: 7px;
+}
+
+.sidebar_padding {
+    padding-left: 7px;
     padding-right: 7px;
 }
 
@@ -38,8 +56,8 @@ img.profile_img {
 }
 
 img.profile_img_req {
-  width: 40px;
-  height: 40px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   display: inline-block !important;
 }
@@ -109,7 +127,7 @@ a, a:hover, a:focus {
 }
 
 #sidebar {
-    width: 250px;
+    width: 350px;
     position: fixed;
     top: 0;
     left: 0;
@@ -121,7 +139,7 @@ a, a:hover, a:focus {
 }
 
 #sidebar.active {
-    margin-left: -250px;
+    margin-left: -350px;
 }
 
 #sidebar .sidebar-header {
@@ -139,18 +157,17 @@ a, a:hover, a:focus {
     padding: 10px;
 }
 
-#sidebar ul li a {
+#sidebar ul li a.sidebar-link {
     padding: 10px;
     font-size: 1.1em;
     display: block;
 }
-#sidebar ul li a:hover {
+#sidebar ul li a.sidebar-link:hover {
     color: #7386D5;
 }
 
 #sidebar ul li.active > a, a[aria-expanded="true"] {
     color: #fff;
-    background: #955818;
 }
 
 
@@ -174,8 +191,6 @@ a[aria-expanded="true"]::before {
 
 ul ul a {
     font-size: 0.9em !important;
-    padding-left: 30px !important;
-    background: #d5a101;
 }
 
 ul ul.dropdown-menu a{
@@ -207,7 +222,7 @@ a.article, a.article:hover {
 
 
 #content {
-    width: calc(100% - 250px);
+    width: calc(100% - 350px);
     min-height: 100vh;
     transition: all 0.3s;
     position: absolute;
@@ -221,7 +236,7 @@ a.article, a.article:hover {
 
 @media (max-width: 768px) {
     #sidebar {
-        margin-left: -250px;
+        margin-left: -350px;
     }
     #sidebar.active {
         margin-left: 0;
@@ -230,7 +245,7 @@ a.article, a.article:hover {
         width: 100%;
     }
     #content.active {
-        width: calc(100% - 250px);
+        width: calc(100% - 350px);
     }
     #sidebarCollapse span {
         display: none;

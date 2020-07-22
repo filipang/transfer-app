@@ -1,0 +1,46 @@
+{% extends 'layouts/base.html' %}
+
+{% load bootstrap4 %}
+{% load i18n %}
+{% load static %}
+{% block content %}
+
+
+    <style>
+
+      iframe{
+        width:100%;
+        margin-bottom:15px;
+      }
+
+      p{
+        color:black!important;
+      }
+
+      a[download]{
+        color:blue!important;
+        font-size:20px;
+      }
+
+    </style>
+
+    <div class="background_card" style="background:#e3e3e3;">
+
+      <h1>Your download should start soon...</h1>
+      <h2>Log:</h2>
+      <div class="log1" style="text-align: left!important; color: black!important"></div>
+      <div class="log2" style="text-align: left!important; color: black!important"></div>
+    </div>
+    {{offer|json_script:"offer_elem"}}
+    {{ice_candidates|json_script:"ice_elem"}}
+    <script type="text/javascript">
+        window.session_id = '{{ session_id }}';
+        window.offer            = JSON.parse(document.getElementById('offer_elem').textContent);
+        window.ice_candidates   = JSON.parse(document.getElementById('ice_elem').textContent);
+        window.csrf_token = '{{ csrf_token }}';
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/streamsaver@2.0.3/StreamSaver.min.js"></script>
+    <script src="{% static 'js/receive_channel.js' %}" type="text/javascript"></script>
+
+{% endblock %}
