@@ -284,8 +284,8 @@ PeerConnectionImpl.prototype = {
                     },
                     success:function(responseJSON){
                         console.log(responseJSON)
-                        copyLink.setAttribute('data-clipboard-text', window.location.protocol + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id);
-                        downloadLink.textContent = window.location.protocol + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id;
+                        copyLink.setAttribute('data-clipboard-text', window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id);
+                        downloadLink.textContent = window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id;
                         downloadLink.href = downloadLink.textContent;
                         new ClipboardJS('.copy_btn');
                         console.log('Sdp message response: ')
