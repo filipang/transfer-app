@@ -16,13 +16,15 @@
     <div class = 'background_card drag_effect' id = 'background_card' style="background:#e3e3e3;">
         <h1>Send your files</h1>
 
-        <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:23px">
-            Drag and drop one or more files anywhere on the page...
+        <div style="margin: 0 auto;text-align: center;font-size:23px">
+            Drag and drop here one or more files...
         </div>
+        <div style="margin: 0 auto;text-align: center;font-size:23px">
+            Or
+        </div>
+
+        <!--
         <br>
-        <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
-            The file transfer is peer-to-peer, meaning that the files can only be downloaded as long as you hold this tab open! <br>(Anyone that has a link can download the files, but don't worry, they won't have it unless send it to them!)
-        </div>
         {%if request.user.is_authenticated %}
             {% if not is_link %}
              <div style="margin: 0 auto; width: 1000px;text-align: center;font-size:18px">
@@ -33,12 +35,16 @@
                 You will recieve a notification once you've dropped your files here.
             </div>
             {% endif %}
-        {% endif %}
+        {% endif %}-->
 
+        <label class="btn btn-default" style="font-size:23px">
+            Browse <input id="browse_field" type="file" multiple hidden>
+        </label>
         <h2>Download link</h2>
-        <input id="download_link" value="">
 
-        <button class="copy_btn" data-clipboard-target="#download_link">
+        <a href="" id="download_link">Download Link</a>
+
+        <button id="copy_btn" class="copy_btn" data-clipboard-text="">
             <img src="{% static 'clipboard.png' %}" alt="Copy to clipboard" style="width: 20px;">
         </button>
 

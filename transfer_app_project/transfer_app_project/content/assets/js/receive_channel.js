@@ -143,7 +143,7 @@ PeerConnectionImpl.prototype = {
                   console.log("couldn't connect to " + thi$.targetId);
                   thi$.handlePeerDisconnection(thi$.targetId);
               }
-          }, 2000000, this);
+          }, 20000000, this);
       },
       initiatePeerConnectionCallbacks:function () {
           this.registerEvents();
@@ -194,7 +194,7 @@ PeerConnectionImpl.prototype = {
                             sdp_type: 'candidate',
                             csrfmiddlewaretoken: window.csrf_token,
                             peer_id: thi$.originId,
-                            sdp: sdp_message,
+                            sdp: JSON.stringify(sdp_message),
                             session_id: window.session_id,
                         },
                         success:function(responseJSON){
@@ -205,8 +205,6 @@ PeerConnectionImpl.prototype = {
                             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
                         },
                   });
-                  //---You'll need to send this SDP to the targetId peer --------//
-                  //---Choose a signaling mechanism using a server to do that ---//
               }
           };
 

@@ -40,8 +40,6 @@ function waitfor(test, expectedValue, msec, count, source, callback) {
     callback();
 }
 
-new ClipboardJS('.copy_btn');
-
 var drags = 0;
 document.addEventListener("DOMContentLoaded", function(event) {
     var card = document.querySelector('#background_card')
@@ -74,18 +72,19 @@ document.addEventListener("DOMContentLoaded", function(event) {
 function sendFile(){};
 
 var readyToSend = false;
+var connected = false;
 var queuedFiles = [];
 
 var peerConnection;
 var progressBar = document.querySelector('#progressBar');
 var progressStatus = document.querySelector('.status');
+var copyLink = document.querySelector('#copy_btn');
 var downloadLink = document.querySelector('#download_link');
+var browseField = document.querySelector('#browse_field');
 
 progressStatus.textContent = 'Waiting for a peer...'
 
 function connect(){
-
-    log('Initiating connection...')
     peerConnection = new PeerConnectionImpl('sender','receiver', true, false)
     peerConnection.setupCall()
     window.clearInterval(window.interval)
@@ -219,6 +218,7 @@ PeerConnectionImpl.prototype = {
           return;
       },
 
+
       //Uint8Array binaryMessage
       send:function (binaryMessage) {
           var thi$ = this;
@@ -284,9 +284,10 @@ PeerConnectionImpl.prototype = {
                     },
                     success:function(responseJSON){
                         console.log(responseJSON)
-                        log('<a href=\'' + '/live_transfer_download/' + responseJSON.session_id + '\'>Download link ready!</a>');
-                        downloadLink.value = 'http://' + window.location.hostname + ":" + window.location.port + '/live_transfer_download/' + responseJSON.session_id;
-                        log('Waiting for peer...');
+                        copyLink.setAttribute('data-clipboard-text', 'http://' + window.location.hostname + ":" + window.location.port + '/live_transfer_download/' + responseJSON.session_id);
+                        downloadLink.textContent = 'http://' + window.location.hostname + ":" + window.location.port + '/live_transfer_download/' + responseJSON.session_id;
+                        downloadLink.href = downloadLink.textContent;
+                        new ClipboardJS('.copy_btn');
                         console.log('Sdp message response: ')
                         console.log(responseJSON);
                     },
@@ -354,6 +355,7 @@ PeerConnectionImpl.prototype = {
               console.log('DataChannel to ' + thi$.targetId + ' state:' + readyState);
               if (readyState.toLowerCase() == 'open') {
                   thi$.ready = true;
+                  connected = true;
                   log('Connected!')
                   progressStatus.textContent = 'Waiting for a file to send...'
                   readyToSend = true;
@@ -440,8 +442,11 @@ PeerConnectionImpl.prototype = {
               this.peerConnection.close();
           }
           window.clearInterval(window.interval)
-          log('Disconnected');
+          if(connected){
+              log('Disconnected');
+          }
           connect();
+          connected = false;
       },
 
       peerConnectionStateValid:function(){
@@ -467,7 +472,8 @@ function parseFile(file, callback) {
     var self       = this; // we need a reference to the current object
     var timeoutCount = 0;
     var chunkReaderBlock = null;
-
+    console.log('READING FILE:');
+    console.log(file);
 
     var readEventHandler = function(evt) {
         if (evt.target.error == null) {
@@ -543,9 +549,9 @@ function sendFile(file){
         })
 }
 
-dragDrop('body', function (files) {
+function addFilesToQueue(files){
+
     if(readyToSend){
-        console.log('LANDED')
         queuedFiles = queuedFiles.concat(files);
         if(files.length === 1){
             log('Queued 1 file to send...');
@@ -563,5 +569,14 @@ dragDrop('body', function (files) {
             log('Queued ' + files.length + ' files to send...');
         }
     }
-})
+}
+
+browse_field.onchange = function(event) {
+   console.log("ADDED FILES TO BROWSE FIELD");
+   console.log(browse_field.files)
+   var files = Array.prototype.slice.call(browse_field.files);
+   addFilesToQueue(files);
+}
+
+dragDrop('body', addFilesToQueue)
 
