@@ -33,8 +33,6 @@ function PeerConnectionImpl(originId,targetId,initiator,reliability){
               this.RTCPeerConnection = webkitRTCPeerConnection;
               this.RTCSessionDescription = RTCSessionDescription;
           } else if (window.mozRTCPeerConnection) {
-              //delete turn servers due to incompatablitiy now
-              //peer5.config.TURN_SERVERS = []
               this.RTCPeerConnection = mozRTCPeerConnection;
               this.RTCSessionDescription = mozRTCSessionDescription;
               RTCIceCandidate = mozRTCIceCandidate;
@@ -96,17 +94,16 @@ PeerConnectionImpl.prototype = {
           } else if (parsed_msg.candidate) {
               if (JSON.stringify(parsed_msg) in this.peerConnection.candidates) {
                   console.log('candidate was already added');
-                  return; // no need to add this!
+                  return;
               }
               if(!this.peerConnectionStateValid()) return;
               var candidate = new RTCIceCandidate(parsed_msg);
               this.peerConnection.addIceCandidate(candidate);
 
-              this.peerConnection.candidates[JSON.stringify(parsed_msg)] = Date.now(); //memorize we have this candidate
+              this.peerConnection.candidates[JSON.stringify(parsed_msg)] = Date.now();
               return;
           }
           console.log("unknown message received");
-//            addTestFailure("unknown message received");
           return;
       },
 
@@ -175,11 +172,9 @@ PeerConnectionImpl.prototype = {
                     success:function(json){
                     },
                     error : function(xhr,errmsg,err) {
-                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        console.log(xhr.status + ": " + xhr.responseText);
                     },
               });
-              //---You'll need to send this SDP to the targetId peer --------//
-              //---Choose a signaling mechanism using a server to do that ---//
           };
 
           this.iceCallback_ = function (event) {
@@ -202,7 +197,7 @@ PeerConnectionImpl.prototype = {
                             console.log(responseJSON);
                         },
                         error : function(xhr,errmsg,err) {
-                            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                            console.log(xhr.status + ": " + xhr.responseText);
                         },
                   });
               }
@@ -278,16 +273,15 @@ PeerConnectionImpl.prototype = {
           this.createDataChannel();
       },
       createPeerConnection:function () {
-          //----configure you stun_servers----//
           var servers = {"iceServers":[{url:"stun:stun.l.google.com:19302"}]}
           try {
               if(window.mozRTCPeerConnection)
-                  this.peerConnection = new this.RTCPeerConnection(); //mozila has a default ice server hard coded
+                  this.peerConnection = new this.RTCPeerConnection();
               else
                   this.peerConnection = new this.RTCPeerConnection(
                       servers
                   );
-              this.peerConnection.candidates = {}; // to remember what candidates were added
+              this.peerConnection.candidates = {};
           } catch (exception) {
               console.log('Failed to create peer connection: ' + exception);
           }
@@ -302,7 +296,6 @@ PeerConnectionImpl.prototype = {
       createDataChannel:function () {
           console.log("createDataChannel");
           this.dataChannel = this.peerConnection.createDataChannel(this.label, this.dataChannelOptions);
-          //peer5.debug('DataChannel with label ' + this.dataChannel.label + ' initiated locally.');
           this.hookupDataChannelEvents();
       },
       closeDataChannel:function () {
@@ -316,7 +309,6 @@ PeerConnectionImpl.prototype = {
           this.dataChannel.onmessage = this.onMessageCallback_;
           this.dataChannel.onopen = this.onDataChannelReadyStateChange_;
           this.dataChannel.onclose = this.onDataChannelClose_;
-          //connecting status:
           console.log('data-channel-status: ' + this.dataChannel.readyState);
       },
 

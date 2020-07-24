@@ -28,7 +28,6 @@ function humanFileSize(bytes, si=false, dp=1) {
 }
 
 function waitfor(test, expectedValue, msec, count, source, callback) {
-    // Check if condition met. If not, re-check later (msec).
     while (test() > expectedValue) {
         count++;
         setTimeout(function() {
@@ -36,7 +35,6 @@ function waitfor(test, expectedValue, msec, count, source, callback) {
         }, msec);
         return;
     }
-    // Condition finally met. callback() can be executed.
     console.log(source + ': ' + test() + ', expected: ' + expectedValue + ', ' + count + ' loops.');
     callback();
 }
@@ -60,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     var counter = 0;
     $('#background_card').bind({
         dragenter: function(ev) {
-            ev.preventDefault(); // needed for IE
+            ev.preventDefault();
             counter++;
             card.setAttribute("style", "background: #b0b0b0!important;");
         },
@@ -134,7 +132,7 @@ function connect(){
                 }
             },
             error : function(xhr,errmsg,err) {
-                console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                console.log(xhr.status + ": " + xhr.responseText);
             },
         });
     }
@@ -151,8 +149,6 @@ function PeerConnectionImpl(originId,targetId,initiator,reliability){
               this.RTCPeerConnection = webkitRTCPeerConnection;
               this.RTCSessionDescription = RTCSessionDescription;
           } else if (window.mozRTCPeerConnection) {
-              //delete turn servers due to incompatablitiy now
-              //peer5.config.TURN_SERVERS = []
               this.RTCPeerConnection = mozRTCPeerConnection;
               this.RTCSessionDescription = mozRTCSessionDescription;
               RTCIceCandidate = mozRTCIceCandidate;
@@ -216,22 +212,20 @@ PeerConnectionImpl.prototype = {
           } else if (parsed_msg.candidate) {
               if (JSON.stringify(parsed_msg) in this.peerConnection.candidates) {
                   console.log('candidate was already added');
-                  return; // no need to add this!
+                  return;
               }
               if(!this.peerConnectionStateValid()) return;
               var candidate = new RTCIceCandidate(parsed_msg);
               this.peerConnection.addIceCandidate(candidate);
 
-              this.peerConnection.candidates[JSON.stringify(parsed_msg)] = Date.now(); //memorize we have this candidate
+              this.peerConnection.candidates[JSON.stringify(parsed_msg)] = Date.now();
               return;
           }
           console.log("unknown message received");
-//            addTestFailure("unknown message received");
           return;
       },
 
 
-      //Uint8Array binaryMessage
       send:function (binaryMessage) {
           var thi$ = this;
           if (thi$.dataChannel.readyState.toLowerCase() == 'open') {
@@ -306,7 +300,7 @@ PeerConnectionImpl.prototype = {
                         console.log(responseJSON);
                     },
                     error : function(xhr,errmsg,err) {
-                        console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                        console.log(xhr.status + ": " + xhr.responseText);
                     },
               });
           };
@@ -331,11 +325,9 @@ PeerConnectionImpl.prototype = {
                             console.log(responseJSON);
                         },
                         error : function(xhr,errmsg,err) {
-                            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+                            console.log(xhr.status + ": " + xhr.responseText);
                         },
                   });
-                  //---You'll need to send this SDP to the targetId peer --------//
-                  //---Choose a signaling mechanism using a server to do that ---//
               }
           };
 
@@ -390,7 +382,6 @@ PeerConnectionImpl.prototype = {
 
           this.onMessageCallback_ = function (message) {
               console.log("receiving data on dataChannel");
-              //---You have received a message, bubble it up to higher logic level --------//
           };
       },
       ensureHasDataChannel:function () {
@@ -403,16 +394,15 @@ PeerConnectionImpl.prototype = {
           this.createDataChannel();
       },
       createPeerConnection:function () {
-          //----configure you stun_servers----//
           var servers = {"iceServers":[{url:"stun:stun.l.google.com:19302"}]}
           try {
               if(window.mozRTCPeerConnection)
-                  this.peerConnection = new this.RTCPeerConnection(); //mozila has a default ice server hard coded
+                  this.peerConnection = new this.RTCPeerConnection();
               else
                   this.peerConnection = new this.RTCPeerConnection(
                       servers
                   );
-              this.peerConnection.candidates = {}; // to remember what candidates were added
+              this.peerConnection.candidates = {};
           } catch (exception) {
               console.log('Failed to create peer connection: ' + exception);
           }
@@ -427,7 +417,6 @@ PeerConnectionImpl.prototype = {
       createDataChannel:function () {
           console.log("createDataChannel");
           this.dataChannel = this.peerConnection.createDataChannel(this.label, this.dataChannelOptions);
-          //peer5.debug('DataChannel with label ' + this.dataChannel.label + ' initiated locally.');
           this.hookupDataChannelEvents();
       },
       closeDataChannel:function () {
@@ -441,7 +430,6 @@ PeerConnectionImpl.prototype = {
           this.dataChannel.onmessage = this.onMessageCallback_;
           this.dataChannel.onopen = this.onDataChannelReadyStateChange_;
           this.dataChannel.onclose = this.onDataChannelClose_;
-          //connecting status:
           console.log('data-channel-status: ' + this.dataChannel.readyState);
       },
 
@@ -484,7 +472,7 @@ function parseFile(file, callback) {
     var safe = true;
     var backPressureTimeout = 200; //ms
     var offset     = 0;
-    var self       = this; // we need a reference to the current object
+    var self       = this;
     var timeoutCount = 0;
     var chunkReaderBlock = null;
     console.log('READING FILE:');
@@ -493,7 +481,7 @@ function parseFile(file, callback) {
     var readEventHandler = function(evt) {
         if (evt.target.error == null) {
             offset += evt.target.result.byteLength;
-            callback(evt.target.result, offset >= fileSize); // callback for handling read chunk
+            callback(evt.target.result, offset >= fileSize);
 
             progressBar.setAttribute("style", "width: " + ((Math.round(offset/fileSize*10000))/100) + "%");
             if(queuedFiles.length>0){
@@ -517,7 +505,6 @@ function parseFile(file, callback) {
             return;
         }
 
-        // of to the next chunk
         console.log('BUFFERED AMMOUNT: ' + peerConnection.dataChannel.bufferedAmount)
         if(peerConnection.dataChannel.bufferedAmount>=maxBuffer){
             waitfor(function(){return peerConnection.dataChannel.bufferedAmount}, safeBuffer, backPressureTimeout, 0,'something', function(){chunkReaderBlock(offset, chunkSize, file)});
@@ -545,7 +532,6 @@ function parseFile(file, callback) {
         }
     }
 
-    // now let's start the read with the first block
     chunkReaderBlock(offset, chunkSize, file);
 }
 
@@ -557,8 +543,8 @@ function sendFile(file){
         //progressStatus.textContent = 'Sending file: ' + file.name + ' with size: ' + humanFileSize(file.size, false);
         parseFile(file, function(fileChunk, last){
             console.log('THIS IS SENT CHUNK')
-            console.log(fileChunk)// data object to transmit over data channel
-            peerConnection.send(fileChunk); // use JSON.stringify for chrome!
+            console.log(fileChunk)
+            peerConnection.send(fileChunk);
             if(last){
                 var data = {};
                 data.last = last;
