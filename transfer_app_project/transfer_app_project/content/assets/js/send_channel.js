@@ -4,6 +4,7 @@ function log (str) {
     //var l = document.querySelector('.log').appendChild(p)
 }
 
+
 function humanFileSize(bytes, si=false, dp=1) {
   const thresh = si ? 1000 : 1024;
 
@@ -42,6 +43,18 @@ function waitfor(test, expectedValue, msec, count, source, callback) {
 
 var drags = 0;
 document.addEventListener("DOMContentLoaded", function(event) {
+
+
+    $('#copy_btn').click(showBox).mouseleave(hideBox);
+
+    function showBox(e){
+        $('.copied_tooltip').fadeIn().css(({ left:  e.pageX, top: e.pageY }));
+    }
+
+    function hideBox(){
+        $('.copied_tooltip').fadeOut();
+    }
+
     var card = document.querySelector('#background_card')
     var original_color = card.getAttribute('style');
     var counter = 0;
@@ -77,8 +90,9 @@ var queuedFiles = [];
 
 var peerConnection;
 var progressBar = document.querySelector('#progressBar');
+var progressStatus = document.querySelector('#status');
 var copyLink = document.querySelector('#copy_btn');
-var downloadLink = document.querySelector('#download_link');
+var downloadLink = document.querySelector('#download_link_elem');
 var browseField = document.querySelector('#browse_field');
 
 
@@ -285,6 +299,8 @@ PeerConnectionImpl.prototype = {
                         copyLink.setAttribute('data-clipboard-text', window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id);
                         downloadLink.textContent = window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id;
                         downloadLink.href = downloadLink.textContent;
+
+                        progressStatus.textContent = 'Waiting for peer to connect...';
                         new ClipboardJS('.copy_btn');
                         console.log('Sdp message response: ')
                         console.log(responseJSON);
@@ -355,6 +371,7 @@ PeerConnectionImpl.prototype = {
                   thi$.ready = true;
                   connected = true;
                   log('Connected!')
+                  progressStatus.textContent = 'Peer connected! Add your files...';
                   readyToSend = true;
                   if(queuedFiles.length > 0){
                       console.log('SEND SOMETHING!')
@@ -457,6 +474,7 @@ PeerConnectionImpl.prototype = {
       }
 }
 
+progressStatus.textContent = "Initiating transfer session...";
 connect()
 function parseFile(file, callback) {
     var fileSize   = file.size;
@@ -478,6 +496,12 @@ function parseFile(file, callback) {
             callback(evt.target.result, offset >= fileSize); // callback for handling read chunk
 
             progressBar.setAttribute("style", "width: " + ((Math.round(offset/fileSize*10000))/100) + "%");
+            if(queuedFiles.length>0){
+                progressStatus.textContent = (Math.round(offset/fileSize*100)) + "%" + "(" + queuedFiles.length + " more files queued for transfer...)"
+            }
+            else{
+                progressStatus.textContent = (Math.round(offset/fileSize*100)) + "%";
+            }
         } else {
             console.log("Read error: " + evt.target.error);
             return;
@@ -555,6 +579,7 @@ function addFilesToQueue(files){
             log('Queued ' + files.length + ' files to send...');
         }
         sendFile(queuedFiles.pop())
+        readyToSend=false;
     }else{
         queuedFiles = queuedFiles.concat(files);
         if(files.length === 1){
@@ -562,6 +587,9 @@ function addFilesToQueue(files){
         }
         else{
             log('Queued ' + files.length + ' files to send...');
+        }
+        if(!connected){
+            progressStatus.textContent = "Waiting for peer to connect...(" + queuedFiles.length + " files queued for transfer)";
         }
     }
 }

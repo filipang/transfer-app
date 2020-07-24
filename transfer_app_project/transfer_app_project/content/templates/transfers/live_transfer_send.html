@@ -14,7 +14,7 @@
     </style>
 
     <div class = 'background_card drag_effect' id = 'background_card' style="background:#e3e3e3;">
-        <h1>Add your files</h1>
+        <h1 style="margin-top: 35px;">Add your files</h1>
 
         <!--
         <br>
@@ -30,25 +30,29 @@
             {% endif %}
         {% endif %}-->
 
-        <label class="btn btn-default" style="font-size:23px;background:url('{% static 'plus_btn.png' %}');background-size: contain;padding:0px;width:64px;height:64px;border:0px;opacity:0.75;">
+        <label class="btn btn-default" style="font-size:23px;background:url('{% static 'plus_btn2.png' %}');background-size: contain;margin-top:25px;padding:0px;width:54px;height:54px;border:0px;opacity:0.75;">
             <input id="browse_field" type="file" multiple style="display:none!important;">
         </label>
-        <h2>Download link</h2>
 
+        <h4 style="font-size:15px!important;margin-top:30px;">Transfer data across the galaxy, from one browser to another.</h4>
+
+        <h4 style="font-size:16px!important;margin-top:30px;margin-bottom:5px;">Copy download link: <a id="download_link_elem" style="color:#056d63!important;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;display:block;width:100%;max-width: 400px;text-align:center;margin-left:auto;margin-right:auto;font-style: italic;font-size:12px;margin-top:8px;" href="www.google.com/">www.google.com/</a></h4>
+        <!--
         <a href="" id="download_link">Download Link</a>
-
-        <button id="copy_btn" class="copy_btn" data-clipboard-text="">
-            <img src="{% static 'clipboard.png' %}" alt="Copy to clipboard" style="width: 20px;">
+        -->
+        <div style="width:400px;height:3px;padding:0;background:#056d63;margin-right:auto;margin-left:auto;"></div>
+        <button id="copy_btn" style="border:0;padding:0;background-color:rgba(0, 0, 0, 0);" class="copy_btn" data-clipboard-text="">
+            <img src="{% static 'copybtntrapez3.png' %}" alt="Copy to clipboard" style="width: 90px;">
         </button>
-
         <div>
-            <div class="progress" style="width:250px;margin-left:85px;">
-              <div id="progressBar" style="" role="progressbar"
-              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0">
-                  <img src="{% static 'progress_bar.jpg' %}" alt="" style="width: 100%;height:100%;">
+            <div class="progress" style="width:250px;height:12px;border-radius:6px;margin-left:85px;margin-top:20px;">
+              <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0;">
+                  <img src="{% static 'progress_bar4.png' %}" alt="" style="width: 100%;height:100%;border-radius:6px;position:absolute;top:0px;left:0px;">
               </div>
             </div>
+             <h4 id="status" style="font-size:16px!important;">33% Complete</h4>
         </div>
+
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.6/dist/clipboard.min.js"></script>
