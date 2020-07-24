@@ -17,10 +17,9 @@ live_transfer_sessions = dict()
 
 
 class Home(View, BasePageMixin):
-    template_name = 'transfers/home.html'
-
-    def get(self, request):
-        return render(request, self.template_name, self.get_context_data(request=request))
+    @staticmethod
+    def get(request):
+        return redirect(reverse('transfers:live_transfer_link', kwargs={'session_id': uuid.uuid1()}))
 
 
 class LiveTransferView(View, BasePageMixin):

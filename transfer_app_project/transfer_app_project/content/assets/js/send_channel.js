@@ -1,7 +1,7 @@
 function log (str) {
-    var p = document.createElement('p')
-    p.innerHTML = str
-    var l = document.querySelector('.log').appendChild(p)
+    //var p = document.createElement('p')
+    //p.innerHTML = str
+    //var l = document.querySelector('.log').appendChild(p)
 }
 
 function humanFileSize(bytes, si=false, dp=1) {
@@ -77,12 +77,10 @@ var queuedFiles = [];
 
 var peerConnection;
 var progressBar = document.querySelector('#progressBar');
-var progressStatus = document.querySelector('.status');
 var copyLink = document.querySelector('#copy_btn');
 var downloadLink = document.querySelector('#download_link');
 var browseField = document.querySelector('#browse_field');
 
-progressStatus.textContent = 'Waiting for a peer...'
 
 function connect(){
     peerConnection = new PeerConnectionImpl('sender','receiver', true, false)
@@ -357,7 +355,6 @@ PeerConnectionImpl.prototype = {
                   thi$.ready = true;
                   connected = true;
                   log('Connected!')
-                  progressStatus.textContent = 'Waiting for a file to send...'
                   readyToSend = true;
                   if(queuedFiles.length > 0){
                       console.log('SEND SOMETHING!')
@@ -480,16 +477,14 @@ function parseFile(file, callback) {
             offset += evt.target.result.byteLength;
             callback(evt.target.result, offset >= fileSize); // callback for handling read chunk
 
-            progressBar.setAttribute("style", "width: " + (Math.round(offset/fileSize*100)) + "%");
-            progressBar.textContent = (Math.round(offset/fileSize*10000)/100) + '% Complete'
+            progressBar.setAttribute("style", "width: " + ((Math.round(offset/fileSize*10000))/100) + "%");
         } else {
             console.log("Read error: " + evt.target.error);
             return;
         }
         if (offset >= fileSize) {
             console.log("Done reading file");
-            console.log("THERE WERE" + timeoutCount + " TIMEOUTS DUE TO BACK PRESSURE")
-            progressStatus.textContent = 'FILE SENT!'
+            //progressStatus.textContent = 'FILE SENT!'
             if(queuedFiles.length > 0){
                 sendFile(queuedFiles.pop())
             }else{
@@ -535,7 +530,7 @@ function sendFile(file){
         data.fileName = file.name
         data.fileSize = file.size
         peerConnection.send(JSON.stringify(data));
-        progressStatus.textContent = 'Sending file: ' + file.name + ' with size: ' + humanFileSize(file.size, false);
+        //progressStatus.textContent = 'Sending file: ' + file.name + ' with size: ' + humanFileSize(file.size, false);
         parseFile(file, function(fileChunk, last){
             console.log('THIS IS SENT CHUNK')
             console.log(fileChunk)// data object to transmit over data channel
