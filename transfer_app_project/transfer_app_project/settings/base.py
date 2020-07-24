@@ -60,7 +60,7 @@ ROOT_URLCONF = 'transfer_app_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['transfer_app_project/content/templates'],
+        'DIRS': ['transfer_app_project/content/templates', os.path.join(CONTENT_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
