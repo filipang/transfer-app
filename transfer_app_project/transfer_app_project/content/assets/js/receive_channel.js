@@ -1,7 +1,7 @@
 function log (str) {
-    var p = document.createElement('p')
-    p.innerHTML = str
-    var l = document.querySelector('.log1').appendChild(p)
+    //var p = document.createElement('p')
+    //p.innerHTML = str
+    //var l = document.querySelector('.log1').appendChild(p)
 }
 
 function isString(x) {
