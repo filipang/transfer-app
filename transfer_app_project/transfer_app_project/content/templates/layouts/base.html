@@ -22,159 +22,154 @@
     <body>
 
         <div class="copied_tooltip">Copied!</div>
-        {% if request.user.is_authenticated %}
-        <div class="wrapper">
-
-            <!-- Side bar -->
-            <nav id="sidebar" class = "active">
-                <!-- Friend request list header -->
-                <div class="friend_requests_list"  style="height:45px;position:relative">
-                    <a style="position: absolute;top: 50%;transform: translate(0,-50%);" class="sidebar-link sidebar_margin" href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Friend Requests ({{ friend_request_users|length }})</a>
-                </div>
-
-                <!-- Friend request list -->
-                <div class="friend_requests_list">
-                    <ul class="collapse list-unstyled live_friend_request_list" id="pageSubmenu"></ul>
-
-                    <template id = 'template_friend_request'>
-                        <li class="small_space_down sidebar_padding selectable-notification accept_friend_button" style="white-space: nowrap;border-bottom: 1px solid #94701b;" username_req="">
-                            <img class="profile_img_req inline"  src="" alt="Profile Image">
-                            <div class="inline" style="width:auto;position: relative;">
-                                <span style="margin: 0;position: absolute; top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
-                                    <a class="username_link inline" href="" style="white-space: pre;">Username</a><span class="request_verb inline"></span>
-                                    <div>10h ago</div>
-                                </span>
-                            </div>
-                        </li>
-                    </template>
-                </div>
-
-                <!-- Notification list header -->
-                <div class = "notification_header" style="height:45px;position:relative">
-                    <a style="margin-top:0px;margin-bottom:0px; position: absolute;top: 50%;transform: translate(0,-50%);" class="inline sidebar_margin"  href="#requestList" data-toggle="collapse" >Notifications ({% live_notify_badge %})</a>
-                    <button style="color:black;  position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);display:none!important;" class="inline clear_btn">Clear</button>
-                </div>
-
-                <!-- Notification list -->
-                <div class="notification_list">
-                    <ul class="list-unstyled collapse list-group live_notify_list no-margin" id = "requestList"></ul>
-
-                    <template id = 'template_notification'>
-                        <li class="small_space_down sidebar_padding selectable-notification accept_transfer_button" style="white-space: nowrap;border-bottom: 1px solid #94701b;" username_req="">
-                            <img class="profile_img_req inline"  src="" alt="Profile Image">
-                            <div class="inline" style="width:auto;position: relative;">
-                                <span style="margin: 0;position: absolute; top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
-                                    <a class="username_link inline" href="" style="white-space: pre;">Username</a><span class="notification_verb inline"></span>
-                                    <div>10h ago</div>
-                                </span>
-                            </div>
-                        </li>
-                    </template>
-                </div>
-
-                <!-- Friend list header -->
-                <div style="height:70px;position:relative" class="sidebar-header">
-                    <h5 style="margin-top:0px;margin-bottom:0px; position: absolute;top: 50%;transform: translate(0,-50%);" class="inline">Friend list ({{ friends|length }})</h5>
-                    <a style="position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);font-size:1em;" class="inline" href="{% url 'accounts:search' %}">Search users...</a>
-                </div>
-
-                <!-- Friend list serach bar-->
-                <div class="sidebar_margin sidebar_searchbar">
-                    <input class="form-control" id="listSearch" type="text" placeholder="Search friend...">
-                </div>
-
-                <!-- Friend list -->
-                <ul class="list-unstyled list-group sidebar_margin" id = "friendList">
-                    {% for friend in friends %}
-                        <li class="dropdown small_space_down" username_friend="{{ friend.username }}">
-                            <img class="profile_img_friend"  src="{{friend.profileimage.image.url}}" alt="Profile Image">
-                            <a class="dropdown-toggle inline" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                {{ friend.username }}
-                            </a>
-
-                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                <a class="dropdown-item" href="{% url 'accounts:profile' friend.username %}">View profile</a>
-                                <a class="dropdown-item" href="{% url 'transfers:live_transfer' friend.username %}">Send files...</a>
-                                <a username_value = "{{friend.username}}" class="dropdown-item remove_friend_btn" href="">Remove Friend</a>
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </nav>
-
-            <!-- Page content without the sidebar -->
-            <!-- This moves to the right when the sidebar is activated -->
-
-            <div id="content" class = "active">
-                {% endif %}
-                <!-- Top navigation bar -->
-                <!--
-                <nav class="navbar navbar-default bg-primary">
-                    <div class="container-fluid">
-                        <div class="navbar-header">
-                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-                                <span class="sr-only">Toggle navigation</span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                                <span class="icon-bar"></span>
-                            </button>
-                            <img class="navbar-brand bg-secondary nopadding margin5" src="{% static 'free-transfer-logo.png' %}">
-                        </div>
-
-                        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                            <ul class="nav navbar-nav navbar-right">
-                                <li class="navbar-text-style {% if request.resolver_match.url_name == 'upload' %} active {% endif %}"><a class="padding20" href="{% url 'transfers:upload' %}">Home<span class="sr-only">(current)</span></a></li>
-                                <li class="navbar-text-style {% if request.resolver_match.url_name == 'live_transfer' or request.resolver_match.url_name == 'live_transfer_link' or request.resolver_match.url_name == 'live_transfer_download'  %} active {% endif %}"><a class="padding20" href="{% url 'transfers:start_session' %}">Live Transfer<span class="sr-only">(current)</span></a></li>
-                                {% if request.user.is_authenticated %}
-                                <li class="navbar-text-style {% if request.resolver_match.url_name == 'profile' %} active {% endif %}"><a class="padding20" href="{% url 'accounts:profile' request.user.get_username %}">My profile</a></li>
-                                <li class="dropdown navbar-text-style">
-                                    <a href="#" class="dropdown-toggle padding20 {% if request.resolver_match.url_name == 'change_password' or request.resolver_match.url_name == 'change_email' or request.resolver_match.url_name == 'change_profile' %} active {% endif %}" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
-                                    <ul class="dropdown-menu bg-primary">
-                                        <li><a href="{% url 'accounts:log_out' %}">Log out</a></li>
-                                        <li role="separator" class="divider"></li>
-                                        <li><a href="{% url 'accounts:change_email' %}">Change email</a></li>
-                                        <li role="separator" class="divider"></li>
-                                        <li><a href="{% url 'accounts:change_password' %}" >Change password</a></li>
-                                        <li role="separator" class="divider"></li>
-                                        <li><a href="{% url 'accounts:change_profile' %}">Change profile details</a></li>
-                                        <li role="separator" class="divider"></li>
-                                        <li><a href="{% url 'accounts:change_image' %}">Change profile image</a></li>
-                                    </ul>
-                                </li>
-                                <li class="dropdown navbar-text-style">
-                                    <a href="#" class="dropdown-toggle padding20" type="button" id="sidebarCollapse">Social({% live_notify_badge %})
-                                        <i class="fas fa-align-left"></i>
-                                        <span class="sr-only">(current)</span>
-                                    </a>
-                                </li>
-                                {% else %}
-                                <li class="navbar-text-style"><a class="padding20" href="{% url 'accounts:log_in' %}">Log in</a></li>
-                                <li class="navbar-text-style"><a class="padding20" href="{% url 'accounts:sign_up' %}">Sign up</a></li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-                !-->
                 <div class="container-fluid mt-3" style="position:relative;height:100%;padding:0;" >
-                    <div class="background_image" style="position:absolute;z-index:-2;background-image: url('{% static 'background_space3.jpg' %}');background-position:center;background-repeat:no-repeat;background-size: cover;height:100%;width:100%;"></div>
+                    <div class="background_image" style="background-attachment: fixed;position:absolute;z-index:-2;background-image: url('{% static 'background_space3.jpg' %}');background-position:center;background-repeat:no-repeat;background-size: cover;height:100%;width:100%;"></div>
                     <a href="/" style="z-index: 2;position:absolute;left:18px;top:18px;box-shadow: 0 0 50px 0 rgba(0,0,0,1),0 20px 80px 0 rgba(0,0,0,1);">
                         <img style="width:35px;" src="{% static 'logo.png' %}" alt="Logo">
                     </a>
-                    <button class="top_menu_btn" style="position:absolute;top:18px;right:18px;width:90px;height:40px;font-size:20px;z-index:2;"><a href="/live_transfer">Sign up</a></button>
-                    <button class="top_menu_btn" style="position:absolute;top:18px;right:107px;width:90px;height:40px;font-size:20px;z-index:2;"><a href="/live_transfer">Log in</a></button>
-                    <div id='particles-js' style="position:absolute;width:100%;height:100%;z-index:0;"></div>
-                    {% bootstrap_messages %}
+                    <div style="opacity:0.94;background:rgba(0,0,0,0);position:absolute;top:18px;right:18px;padding:0;z-index:2;height:38px;width:220px;">
+                        {% if request.user.is_authenticated %}<button class="toggle_friends" style="border-right: 1px solid #d4d7d9;border-left: 1px solid #d4d7d9;border-top: 1px solid #d4d7d9;border-bottom: 1px solid #d4d7d9;border:0;position:absolute;height:38px;width:38px;border-radius:19px;"><img style="height:14px;width:22px;" src="{% static 'friends_icon.png' %}" alt=""></button>{% endif %}
+                        <div style="overflow:hidden;border-radius:8px;display:inline-block;float:right;">
 
-                    {% block content  %}
-                        No content.
-                    {% endblock %}
+{% if request.user.is_authenticated %}<button onclick="location.href='{% url 'accounts:log_out' %}'" type="button" class="top_menu_btn"><a>Log out</a></button><button  onclick="location.href='{% url 'accounts:profile' username=request.user.username %}'" type="button" class="top_menu_btn"><a>Profile</a></button>{% else %}<button  onclick="location.href='{% url 'accounts:sign_up' %}'" type="button" class="top_menu_btn"><a>Sign up</a></button><button  onclick="location.href='{% url 'accounts:log_in' %}'" type="button"  class="top_menu_btn"><a>Log in</a></button>{% endif %}
+                        </div>
+                    </div>
+                    <div class="social_tab" style="overflow-y:auto;transition: margin 700ms;margin-right:-418px;position:absolute;z-index:3;top:72px;right:18px;width:400px;background:rgba(255,255,255,0.94);border-radius:8px;">
+                        <!-- Friend request list header -->
+                        <div class="friend_requests_list"  style="height:45px;position:relative;margin-top:5px;">
+                            <a style="position: absolute;top: 50%;transform: translate(0,-50%);margin-left:15px;" class="sidebar-link sidebar_margin" href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Friend Requests ({{ friend_request_users|length }})<img style="display:inline-block;width:7px;height:7px;margin-left:6px;" src="{% static 'triangle_indicator.png' %}" alt=""></a>
+                        </div>
 
-                </div>
-        {% if request.user.is_authenticated %}
+                        <!-- Friend request list -->
+                        <div class="friend_requests_list">
+                            <ul style="border-bottom: 1px solid #7d7d7d;" class="collapse list-unstyled live_friend_request_list" id="pageSubmenu"></ul>
+
+                            <template id = 'template_friend_request'>
+                                <li class="small_space_down sidebar_padding selectable-notification accept_friend_button" style="padding-top:4px;padding-bottom:4px;white-space: nowrap;border-top: 1px solid #7d7d7d;" username_req="">
+                                    <img class="profile_img_req inline"  src="" alt="Profile Image">
+                                    <div class="inline" style="width:auto;position: relative;">
+                                        <span style="margin: 0;position: absolute; top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
+                                            <a class="username_link inline" href="" style="white-space: pre;">Username</a><span class="request_verb inline"></span>
+                                            <div>Transfer request</div>
+                                        </span>
+                                    </div>
+                                    <button class="close_friend_request" style="opacity:0.8;background:rgba(0,0,0,0);border:0;padding:0;margin:0;float:right;width:24px;height:24px;margin-top:10px;margin-right:10px;">
+                                        <img style="width:20px;height:20px" src="{% static 'x_btn.png' %}" alt="">
+                                    </button>
+                                </li>
+                            </template>
+                        </div>
+
+                        <!-- Notification list header -->
+                        <div class = "notification_header" style="height:45px;position:relative">
+                            <a style="margin-top:0px;margin-bottom:0px;margin-left:15px; position: absolute;top: 50%;transform: translate(0,-50%);" class="inline sidebar_margin"  id="notification_count" href="#requestList" data-toggle="collapse" >Notifications (0)<img style="display:inline-block;width:7px;height:7px;margin-left:6px;" src="{% static 'triangle_indicator.png' %}" alt=""></a>
+                            <button style="color:black;  position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);display:none!important;" class="inline clear_btn">Clear</button>
+                        </div>
+
+                        <!-- Notification list -->
+                        <div class="notification_list">
+                            <ul style="border-bottom: 1px solid #7d7d7d;" class="list-unstyled collapse list-group live_notify_list no-margin" id = "requestList"></ul>
+
+                            <template id = 'template_notification'>
+                                <li class="small_space_down sidebar_padding selectable-notification accept_transfer_button" style="padding-top:4px;padding-bottom:4px;white-space: nowrap;border-top: 1px solid #7d7d7d;" username_req="">
+                                    <img class="profile_img_req inline"  src="" alt="Profile Image">
+                                    <div class="inline" style="width:auto;position: relative;">
+                                        <span style="margin: 0;position: absolute; top: 50%;-ms-transform: translateY(-50%);transform: translateY(-50%);">
+                                            <a class="username_link inline" href="" style="white-space: pre;">Username</a><span class="notification_verb inline"></span>
+                                            <div>10h ago</div>
+                                        </span>
+                                    </div>
+                                    <button class="close_notification" style="opacity:0.8;background:rgba(0,0,0,0);border:0;padding:0;margin:0;float:right;width:24px;height:24px;margin-top:10px;margin-right:10px;">
+                                        <img style="width:20px;height:20px" src="{% static 'x_btn.png' %}" alt="">
+                                    </button>
+                                </li>
+                            </template>
+                        </div>
+
+                        <!-- Friend list header -->
+                        <div style="height:70px;position:relative" class="sidebar-header">
+                            <h5 style="margin-top:0px;margin-bottom:0px;margin-left:15px;position: absolute;top: 50%;transform: translate(0,-50%);font-weight:400;" class="inline">Friend list ({{ friends|length }})</h5>
+                            <button style="padding:7px;padding-left:9px;background:#dcdcdc;padding-right:9px;border-radius:5px;position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);font-size:1em;border-right: 1px solid #d4d7d9;border-left: 1px solid #d4d7d9;border-top: 1px solid #d4d7d9; border-bottom: 1px solid #d4d7d9;">
+                                <a class="inline" href="{% url 'accounts:search' %}">Search users</a>
+                            </button>
+                        </div>
+
+                        <!-- Friend list serach bar-->
+                        <div class="sidebar_margin sidebar_searchbar" style="margin-left:15px;">
+                            <input class="form-control" id="listSearch" type="text" placeholder="Search friend...">
+                        </div>
+
+                        <!-- Friend list -->
+                        <ul class="list-unstyled list-group sidebar_margin" style="margin-left:15px;" id = "friendList">
+                            {% for friend in friends %}
+                                <li class="dropdown small_space_down" style="margin-top:4px;" username_friend="{{ friend.username }}">
+                                    <img class="profile_img_friend"  src="{{friend.profileimage.image.url}}" alt="Profile Image">
+                                    <a class="dropdown-toggle inline" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        {{ friend.username }}
+                                    </a>
+
+                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                        <a class="dropdown-item" href="{% url 'accounts:profile' friend.username %}">View profile</a>
+                                        <a class="dropdown-item" href="{% url 'transfers:start_session_user' friend.username %}">Send files...</a>
+                                        <button style="border:0;background:inherit;margin:0;padding-left:10px;" username_value = "{{friend.username}}" class="dropdown-item remove_friend_btn">Remove Friend</button>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                            </div>
+                            <div id='particles-js' style="position:absolute;width:100%;height:100%;z-index:0;"></div>
+                            {% bootstrap_messages %}
+
+                            {% block content  %}
+                                No content.
+                            {% endblock %}
+
+                        </div>
+        <!-- Footer -->
+        <footer style="background:#e6e6e6" class="page-footer font-small teal pt-4" style="z-index:4;padding-top:10px;">
+
+          <!-- Footer Text -->
+          <div class="container-fluid text-center text-md-left">
+
+            <!-- Grid row -->
+            <div class="row">
+
+              <!-- Grid column -->
+              <div class="col-md-6 mt-md-0 mt-3">
+
+                <!-- Content -->
+                <h5 class="text-uppercase font-weight-bold">About</h5>
+                <p style="color:#363636;padding:15px;">This website can be used by anyone to transfer data from person to person or from device to device. The file transfers are peer-to-peer, which means your data won't be stored on a server at any point, the data goes straight from a device to another. In order to connect with your partner for the file transfer you can use a download link, or you can create an account, add a friend, and send them a file transfer request.</p>
+
+              </div>
+              <!-- Grid column -->
+
+
+              <!-- Grid column -->
+              <div class="col-md-6 mb-md-0 mb-3">
+
+                <!-- Content -->
+                <h5 class="text-uppercase font-weight-bold">Despre</h5>
+                <p style="color:#363636;padding:15px;">Acest site poate fi folosit de oricine pentru a transfera date de la persoana la persoana sau de la device la device. Transferurile de date sunt peer-to-peer, ceea ce inseamna ca datele tale nu vor fi stocate pe un server deloc pe parcursul transferului, datele mergand direct de la un device la altul. Pentru a face un transfer de date cu partenerul tau poti folosi un link de descarcare, sau iti poti creea un cont, dupa care iti adaugi partenerul la prieteni si le trimiti o cerere de transfer.</p>
+
+              </div>
+              <!-- Grid column -->
+
             </div>
-        </div>
-        {% endif %}
+            <!-- Grid row -->
+
+          </div>
+          <!-- Footer Text -->
+
+          <!-- Copyright -->
+          <div class="footer-copyright text-center py-3">GitHub:
+            <a style="padding-bottom:7px;color:#056d63!important;text-decoration:underline" href="https://github.com/filipang/transfer-app">https://github.com/filipang/transfer-app</a>
+          </div>
+          <!-- Copyright -->
+
+        </footer>
+        <!-- Footer -->
+
 
         <!-- Scripts -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>

@@ -4,16 +4,16 @@
 {% load i18n %}
 
 {% block content %}
+    <div class = 'background_card drag_effect' id = 'background_card' style="margin-top:-310px;padding:60px;position:absolute;top:50%;left:50%px;width:500px;height:auto;z-index:2;background:#e3e3e3;">
+        <h2 style="margin-top:10px;">{% trans 'Create an account' %}</h2>
 
-    <h4>{% trans 'Create an account' %}</h4>
+        <form method="post">
 
-    <form method="post">
+            {% csrf_token %}
+            {% bootstrap_form form %}
 
-        {% csrf_token %}
-        {% bootstrap_form form %}
+            <button class="btn btn-success">{% trans 'Create' %}</button>
 
-        <button class="btn btn-success">{% trans 'Create' %}</button>
-
-    </form>
-
+        </form>
+    </div>
 {% endblock %}

@@ -3,15 +3,16 @@
 {% load i18n %}
 
 {% block content %}
+    <div class = 'background_card drag_effect' id = 'background_card' style="padding:60px;position:absolute;top:50%;left:50%px;width:500px;z-index:2;background:#e3e3e3;">
+        <h2>{% trans 'Logged out' %}</h2>
 
-    <h4>{% trans 'Logged out' %}</h4>
+        <p style="color:black" >
+            {% trans 'Have a good day!.' %}
+        </p>
 
-    <p style="color:black" >
-        {% trans 'Have a good day!.' %}
-    </p>
-
-    <p style="color:blue">
-        <a href="{% url 'accounts:log_in' %}">{% trans 'Log in again' %}</a>
-    </p>
+        <p style="color:blue">
+            <a href="{% url 'accounts:log_in' %}">{% trans 'Log in again' %}</a>
+        </p>
+    </div>
 
 {% endblock %}

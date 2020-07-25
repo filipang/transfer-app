@@ -203,7 +203,7 @@ class RestorePasswordView(GuestOnlyView, FormView, BasePageMixin):
     def form_valid(self, form):
         user = form.user_cache
         token = default_token_generator.make_token(user)
-        uid = urlsafe_base64_encode(force_bytes(user.pk)).decode()
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
 
         send_reset_password_email(self.request, user.email, token, uid)
 
@@ -425,7 +425,7 @@ class RemoveFriendView(LoginRequiredMixin, View, BasePageMixin):
         Friendship.objects.get(Q(user1=user) | Q(user2=user)).delete()
         messages.success(request, _(''.join([username, ' has been removed from your friend list.'])))
 
-        return redirect('transfers:upload')
+        return JsonResponse({'username': username})
 
 
 class AcceptFriendView(LoginRequiredMixin, View, BasePageMixin):
@@ -471,6 +471,12 @@ class SearchUserView(LoginRequiredMixin, View, BasePageMixin):
 
 
 class ClearNotificationsView(LoginRequiredMixin, View, BasePageMixin):
+    def post(self, request):
+        request.user.notifications.all().delete()
+        return JsonResponse({'request': 'la dee da'})
+
+
+class DeleteNotificationView(LoginRequiredMixin, View, BasePageMixin):
     def post(self, request):
         request.user.notifications.all().delete()
         return JsonResponse({'request': 'la dee da'})

@@ -1,6 +1,4 @@
-
 $(document).ready(function () {
-
     //PARTICLES SETUP
 particlesJS('particles-js',
 {
@@ -149,6 +147,24 @@ particlesJS('particles-js',
         });
     });
 
+    $('.remove_friend_btn').on('click',function(e){
+        $.ajax({
+            type:'POST',
+            url:'remove_friend/' + $(this).attr('username_value'),
+            data:{
+                csrfmiddlewaretoken: window.csrf_token,
+            },
+            success:function(json){
+                $("div button[username_value='" + json.username + "']").remove();
+            },
+            error : function(xhr,errmsg,err) {
+            console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
+            },
+
+        });
+    });
+
+
      $('.clear_btn').on('click',function(e){
         $.ajax({
             type:'POST',
@@ -167,16 +183,37 @@ particlesJS('particles-js',
         });
     });
 
-    $('.remove_friend_btn').on("click", function(){
-       $.ajax({
+    $(window).resize(function() {
+          $('.social_tab').css('height','100%').css('height','-=83px');
+    });
+
+
+
+    $('.social_tab').css('height','100%').css('height','-=83px');
+    var toggledFriends = false;
+    $('.toggle_friends').on("click", function(){
+        if(toggledFriends==true){
+
+            $('.social_tab').css('margin-right','-418px');
+            toggledFriends=false;
+        }
+        else{
+
+            $('.social_tab').css('margin-right','0');
+            toggledFriends=true;
+        }
+    })
+
+    $('.close_notification').on('click',function(e){
+        _this = this;
+        $.ajax({
             type:'POST',
-            url:'/remove_friend/' + $(this).attr('username_value'),
+            url:'clear_notification/' + $(this).attr('notification_pk'),
             data:{
                 csrfmiddlewaretoken: window.csrf_token,
             },
             success:function(json){
-                $("li[username_req='" + json.username + "']").remove();
-
+                _this.remove();
             },
             error : function(xhr,errmsg,err) {
             console.log(xhr.status + ": " + xhr.responseText); // provide a bit more info about the error to the console
@@ -184,16 +221,19 @@ particlesJS('particles-js',
 
         });
     });
+
 });
 
 function fill_notifications(data) {
     notification_list = document.querySelector('.live_notify_list');
     notification_list.innerHTML = "";
     template_notification = document.querySelector('#template_notification');
+    var notif_count = 0;
     for (var i = 0; i < data.unread_list.length; i++) {
         msg = data.unread_list[i];
 
         if(data.unread_list[i].data.type === 'NOTIFICATION'){
+            notif_count++;
             list_item = template_notification.content.cloneNode(true);
             list_item.querySelector('.notification_verb').textContent = data.unread_list[i].verb;
 
@@ -210,6 +250,7 @@ function fill_notifications(data) {
             notification_list.appendChild(list_item);
         }
     }
+    document.querySelector('#notification_count').childNodes[0].nodeValue ="Notifications (" + notif_count + ")";
 }
 
 function fill_friend_requests(data) {

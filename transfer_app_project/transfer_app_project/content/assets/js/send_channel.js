@@ -290,10 +290,32 @@ PeerConnectionImpl.prototype = {
                     },
                     success:function(responseJSON){
                         console.log(responseJSON)
-                        copyLink.setAttribute('data-clipboard-text', window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id);
-                        downloadLink.textContent = window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id;
-                        downloadLink.href = downloadLink.textContent;
 
+                        if(window.is_link === 'True'){
+                            copyLink.setAttribute('data-clipboard-text', window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id);
+                            downloadLink.textContent = window.location.protocol + '//' + window.location.hostname + '/live_transfer_download/' + responseJSON.session_id;
+                            downloadLink.href = downloadLink.textContent;
+                        }
+                        else{
+                            $.ajax({
+                                type: 'POST',
+                                url: '/invite_transfer/' + window.session_id + '/' + window.username + '/',
+                                data:{
+                                    sdp_type: 'offer',
+                                    csrfmiddlewaretoken: window.csrf_token,
+                                    peer_id: thi$.originId,
+                                    sdp: session_description.sdp,
+                                    session_id: window.session_id,
+                                },
+                                success:function(responseJSON){
+                                    console.log(responseJSON)
+
+                                },
+                                error : function(xhr,errmsg,err) {
+                                    console.log(xhr.status + ": " + xhr.responseText);
+                                },
+                          });
+                        }
                         progressStatus.textContent = 'Waiting for peer to connect...';
                         new ClipboardJS('.copy_btn');
                         console.log('Sdp message response: ')

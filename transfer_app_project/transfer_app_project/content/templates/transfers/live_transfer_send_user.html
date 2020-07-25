@@ -36,14 +36,8 @@
 
         <h4 style="font-size:15px!important;margin-top:30px;">Transfer data across the galaxy, from one browser to another.</h4>
 
-        <h4 style="font-size:16px!important;margin-top:30px;margin-bottom:5px;">Copy download link: <a id="download_link_elem" style="color:#056d63!important;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;display:block;width:100%;max-width: 400px;text-align:center;margin-left:auto;margin-right:auto;font-style: italic;font-size:12px;margin-top:8px;" href="www.google.com/">www.google.com/</a></h4>
-        <!--
-        <a href="" id="download_link">Download Link</a>
-        -->
+        <h4 style="font-size:16px!important;margin-top:30px;margin-bottom:5px;">Transfer files to {{username}} </h4>
         <div style="width:400px;height:3px;padding:0;background:#056d63;margin-right:auto;margin-left:auto;"></div>
-        <button id="copy_btn" style="border:0;padding:0;background-color:rgba(0, 0, 0, 0);" class="copy_btn" data-clipboard-text="">
-            <img src="{% static 'copybtntrapez3.png' %}" alt="Copy to clipboard" style="width: 90px;">
-        </button>
         <div>
             <div class="progress" style="width:250px;height:12px;border-radius:6px;margin-left:85px;margin-top:20px;">
               <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0;">
@@ -61,7 +55,9 @@
     <script type="text/javascript">
         window.session_id = '{{ session_id }}';
         window.csrf_token = '{{ csrf_token }}';
+        window.is_auth = '{{ request.user.is_authenticated }}';
         window.is_link = '{{ is_link }}';
+        window.username = '{{ username }}';
     </script>
     <script src="{% static 'js/send_channel.js' %}" type="text/javascript"></script>
 

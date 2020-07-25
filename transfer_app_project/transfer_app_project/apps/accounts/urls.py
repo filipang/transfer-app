@@ -4,7 +4,7 @@ from .views import (
     LogInView, ResendActivationCodeView, RemindUsernameView, SignUpView, ActivateView, LogOutView,
     ChangeEmailView, ChangeEmailActivateView, ChangeProfileView, ChangePasswordView,
     RestorePasswordView, RestorePasswordDoneView, RestorePasswordConfirmView, ProfileView,
-    FriendsView, AddFriendView, RemoveFriendView, AcceptFriendView, DeclineFriendView, SearchUserView, ClearNotificationsView, ChangeProfileImageView
+    FriendsView, AddFriendView, RemoveFriendView, AcceptFriendView, DeclineFriendView, SearchUserView, ClearNotificationsView, DeleteNotificationView, ChangeProfileImageView
 )
 
 app_name = 'accounts'
@@ -40,6 +40,8 @@ urlpatterns = [
 
     path('search', SearchUserView.as_view(), name='search'),
 
-    path('clear_notifications', ClearNotificationsView.as_view(), name = 'clear_notifications')
+    path('clear_notifications', ClearNotificationsView.as_view(), name='clear_notifications'),
+    path('clear_notification', DeleteNotificationView.as_view(), name='delete_notification')
+
 
 ]

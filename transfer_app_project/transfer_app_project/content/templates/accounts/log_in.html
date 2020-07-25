@@ -4,30 +4,28 @@
 {% load i18n %}
 
 {% block content %}
+    <div class = 'background_card drag_effect' id = 'background_card' style="padding:60px;position:absolute;top:50%;left:50%px;width:500px;z-index:2;background:#e3e3e3;">
+        <h2 style="margin:0;">{% trans 'Log in' %}</h2>
+        <form style="margin-top:50px;" method="post">
 
-    <h4>{% trans 'Log in' %}</h4>
+            {% csrf_token %}
+            {% bootstrap_form form %}
 
-    <form method="post">
+            <button class="btn btn-primary">{% trans 'Log in' %}</button>
 
-        {% csrf_token %}
-        {% bootstrap_form form %}
+        </form>
 
-        <button class="btn btn-primary">{% trans 'Log in' %}</button>
 
-    </form>
-
-    <hr>
-
-    <ul>
-        <li>
-            <a href="{% url 'accounts:restore_password' %}">{% trans 'Forgot your password?' %}</a>
-        </li>
-        <li>
-            <a href="{% url 'accounts:remind_username' %}">{% trans 'Forgot your username?' %}</a>
-        </li>
-        <li>
-            <a href="{% url 'accounts:resend_activation_code' %}">{% trans 'Resend an activation code' %}</a>
-        </li>
-    </ul>
-
+        <ul style="padding:0;margin-top:10px;">
+            <li>
+                <a href="{% url 'accounts:restore_password' %}">{% trans 'Forgot your password?' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:remind_username' %}">{% trans 'Forgot your username?' %}</a>
+            </li>
+            <li>
+                <a href="{% url 'accounts:resend_activation_code' %}">{% trans 'Resend an activation code' %}</a>
+            </li>
+        </ul>
+    </div>
 {% endblock %}
