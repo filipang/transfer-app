@@ -5,15 +5,17 @@
 
 {% block content %}
 
-    <h4>{% trans 'Change profile' %}</h4>
+    <div class = 'background_card drag_effect' id = 'background_card' style="padding:60px;padding-top:130px;padding-left:40px;position:absolute;top:50%;left:50%px;width:500px;z-index:2;background:#e3e3e3;">
+        <h4>{% trans 'Change profile' %}</h4>
 
-    <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data">
 
-        {% csrf_token %}
-        {% bootstrap_form form %}
+            {% csrf_token %}
+            {% bootstrap_form form %}
 
-        <button class="btn btn-success">{% trans 'Change' %}</button>
+            <button class="btn btn-success">{% trans 'Change' %}</button>
 
-    </form>
+        </form>
+    </div>
 
 {% endblock %}

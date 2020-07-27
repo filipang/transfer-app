@@ -22,7 +22,7 @@
     <body>
 
         <div class="copied_tooltip">Copied!</div>
-                <div class="container-fluid mt-3" style="position:relative;height:100%;padding:0;" >
+                <div class="container-fluid mt-3" style="position:relative;height:100%;padding:0;overflow-x:hidden;" >
                     <div class="background_image" style="background-attachment: fixed;position:absolute;z-index:-2;background-image: url('{% static 'background_space3.jpg' %}');background-position:center;background-repeat:no-repeat;background-size: cover;height:100%;width:100%;"></div>
                     <a href="/" style="z-index: 2;position:absolute;left:18px;top:18px;box-shadow: 0 0 50px 0 rgba(0,0,0,1),0 20px 80px 0 rgba(0,0,0,1);">
                         <img style="width:35px;" src="{% static 'logo.png' %}" alt="Logo">
@@ -31,13 +31,13 @@
                         {% if request.user.is_authenticated %}<button class="toggle_friends" style="border-right: 1px solid #d4d7d9;border-left: 1px solid #d4d7d9;border-top: 1px solid #d4d7d9;border-bottom: 1px solid #d4d7d9;border:0;position:absolute;height:38px;width:38px;border-radius:19px;"><img style="height:14px;width:22px;" src="{% static 'friends_icon.png' %}" alt=""></button>{% endif %}
                         <div style="overflow:hidden;border-radius:8px;display:inline-block;float:right;">
 
-{% if request.user.is_authenticated %}<button onclick="location.href='{% url 'accounts:log_out' %}'" type="button" class="top_menu_btn"><a>Log out</a></button><button  onclick="location.href='{% url 'accounts:profile' username=request.user.username %}'" type="button" class="top_menu_btn"><a>Profile</a></button>{% else %}<button  onclick="location.href='{% url 'accounts:sign_up' %}'" type="button" class="top_menu_btn"><a>Sign up</a></button><button  onclick="location.href='{% url 'accounts:log_in' %}'" type="button"  class="top_menu_btn"><a>Log in</a></button>{% endif %}
+                        {% if request.user.is_authenticated %}<button onclick="location.href='{% url 'accounts:log_out' %}'" type="button" class="top_menu_btn"><a>Log out</a></button><button  onclick="location.href='{% url 'accounts:profile' username=request.user.username %}'" type="button" class="top_menu_btn"><a>Profile</a></button>{% else %}<button  onclick="location.href='{% url 'accounts:sign_up' %}'" type="button" class="top_menu_btn"><a>Sign up</a></button><button  onclick="location.href='{% url 'accounts:log_in' %}'" type="button"  class="top_menu_btn"><a>Log in</a></button>{% endif %}
                         </div>
                     </div>
                     <div class="social_tab" style="overflow-y:auto;transition: margin 700ms;margin-right:-418px;position:absolute;z-index:3;top:72px;right:18px;width:400px;background:rgba(255,255,255,0.94);border-radius:8px;">
                         <!-- Friend request list header -->
                         <div class="friend_requests_list"  style="height:45px;position:relative;margin-top:5px;">
-                            <a style="position: absolute;top: 50%;transform: translate(0,-50%);margin-left:15px;" class="sidebar-link sidebar_margin" href="#pageSubmenu" data-toggle="collapse" aria-expanded="false">Friend Requests ({{ friend_request_users|length }})<img style="display:inline-block;width:7px;height:7px;margin-left:6px;" src="{% static 'triangle_indicator.png' %}" alt=""></a>
+                            <a style="position: absolute;top: 50%;transform: translate(0,-50%);margin-left:15px;" class="sidebar-link sidebar_margin" href="#pageSubmenu" id='friend_request_count' data-toggle="collapse" aria-expanded="false">Friend Requests ({{ friend_request_users|length }})<img style="display:inline-block;width:7px;height:7px;margin-left:6px;" src="{% static 'triangle_indicator.png' %}" alt=""></a>
                         </div>
 
                         <!-- Friend request list -->
@@ -88,7 +88,7 @@
 
                         <!-- Friend list header -->
                         <div style="height:70px;position:relative" class="sidebar-header">
-                            <h5 style="margin-top:0px;margin-bottom:0px;margin-left:15px;position: absolute;top: 50%;transform: translate(0,-50%);font-weight:400;" class="inline">Friend list ({{ friends|length }})</h5>
+                            <h5 style="margin-top:0px;margin-bottom:0px;margin-left:15px;position: absolute;top: 50%;transform: translate(0,-50%);font-weight:400;" class="inline" id="friend_count">Friend List ({{ friends|length }})</h5>
                             <button style="padding:7px;padding-left:9px;background:#dcdcdc;padding-right:9px;border-radius:5px;position: absolute;right: 1em;top: 50%;transform: translate(0,-50%);font-size:1em;border-right: 1px solid #d4d7d9;border-left: 1px solid #d4d7d9;border-top: 1px solid #d4d7d9; border-bottom: 1px solid #d4d7d9;">
                                 <a class="inline" href="{% url 'accounts:search' %}">Search users</a>
                             </button>
@@ -102,29 +102,43 @@
                         <!-- Friend list -->
                         <ul class="list-unstyled list-group sidebar_margin" style="margin-left:15px;" id = "friendList">
                             {% for friend in friends %}
-                                <li class="dropdown small_space_down" style="margin-top:4px;" username_friend="{{ friend.username }}">
+                                <li class="dropdown small_space_down set_username_friend" style="margin-top:4px;" username_friend="{{ friend.username }}">
                                     <img class="profile_img_friend"  src="{{friend.profileimage.image.url}}" alt="Profile Image">
-                                    <a class="dropdown-toggle inline" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="friend_username dropdown-toggle inline set_text_content" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         {{ friend.username }}
                                     </a>
 
                                     <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                        <a class="dropdown-item" href="{% url 'accounts:profile' friend.username %}">View profile</a>
-                                        <a class="dropdown-item" href="{% url 'transfers:start_session_user' friend.username %}">Send files...</a>
-                                        <button style="border:0;background:inherit;margin:0;padding-left:10px;" username_value = "{{friend.username}}" class="dropdown-item remove_friend_btn">Remove Friend</button>
+                                        <a class="dropdown-item set_profile_href" href="{% url 'accounts:profile' friend.username %}">View profile</a>
+                                        <a class="dropdown-item set_start_session_href" href="{% url 'transfers:start_session_user' friend.username %}">Send files...</a>
+                                        <button style="border:0;background:inherit;margin:0;padding-left:10px;" username_value = "{{friend.username}}" class="set username_value dropdown-item remove_friend_btn">Remove Friend</button>
                                     </div>
                                 </li>
                             {% endfor %}
                         </ul>
-                            </div>
-                            <div id='particles-js' style="position:absolute;width:100%;height:100%;z-index:0;"></div>
-                            {% bootstrap_messages %}
+                        <template id="templateFriend">
+                            <li class="dropdown small_space_down set_username_friend" style="margin-top:4px;" username_friend="">
+                                <img class="profile_img_friend"  src="" alt="Profile Image">
+                                <a class="friend_username dropdown-toggle inline set_text_content" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                </a>
 
-                            {% block content  %}
-                                No content.
-                            {% endblock %}
+                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                    <a class="dropdown-item set_profile_href" href="">View profile</a>
+                                    <a class="dropdown-item set_start_session_href" href="">Send files...</a>
+                                    <button style="border:0;background:inherit;margin:0;padding-left:10px;" username_value = "" class="set_username_value dropdown-item remove_friend_btn">Remove Friend</button>
+                                </div>
+                            </li>
+                        </template>
 
-                        </div>
+                    </div>
+                    <div id='particles-js' style="position:absolute;width:100%;height:100%;z-index:0;"></div>
+                    {% bootstrap_messages %}
+
+                    {% block content  %}
+                        No content.
+                    {% endblock %}
+
+                </div>
         <!-- Footer -->
         <footer style="background:#e6e6e6" class="page-footer font-small teal pt-4" style="z-index:4;padding-top:10px;">
 

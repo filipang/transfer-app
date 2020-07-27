@@ -4,7 +4,7 @@ from .views import (
     LogInView, ResendActivationCodeView, RemindUsernameView, SignUpView, ActivateView, LogOutView,
     ChangeEmailView, ChangeEmailActivateView, ChangeProfileView, ChangePasswordView,
     RestorePasswordView, RestorePasswordDoneView, RestorePasswordConfirmView, ProfileView,
-    FriendsView, AddFriendView, RemoveFriendView, AcceptFriendView, DeclineFriendView, SearchUserView, ClearNotificationsView, DeleteNotificationView, ChangeProfileImageView
+    FriendsView, AddFriendView, RemoveFriendView, AcceptFriendView, DeclineFriendView, SearchUserView, ClearNotificationsView, DeleteNotificationView, ChangeProfileImageView, FriendListView
 )
 
 app_name = 'accounts'
@@ -32,16 +32,17 @@ urlpatterns = [
 
     path('profile/<str:username>', ProfileView.as_view(), name = 'profile'),
 
-    path('friends', FriendsView.as_view(), name = 'friends'),
-    path('add_friend/<str:username>', AddFriendView.as_view(), name = 'add_friend'),
-    path('remove_friend/<str:username>', RemoveFriendView.as_view(), name = 'remove_friend'),
-    path('accept_friend/<str:username>', AcceptFriendView.as_view(), name = 'accept_friend'),
-    path('decline_friend/<str:username>', DeclineFriendView.as_view(), name = 'decline_friend'),
+    path('friends', FriendsView.as_view(), name='friends'),
+    path('add_friend/<str:username>', AddFriendView.as_view(), name='add_friend'),
+    path('remove_friend/<str:username>', RemoveFriendView.as_view(), name='remove_friend'),
+    path('accept_friend/<str:username>', AcceptFriendView.as_view(), name='accept_friend'),
+    path('decline_friend/<str:username>', DeclineFriendView.as_view(), name='decline_friend'),
+    path('friend_list/', FriendListView.as_view(), name='friend_list'),
 
     path('search', SearchUserView.as_view(), name='search'),
 
     path('clear_notifications', ClearNotificationsView.as_view(), name='clear_notifications'),
-    path('clear_notification', DeleteNotificationView.as_view(), name='delete_notification')
+    path('clear_notification/<int:pk>', DeleteNotificationView.as_view(), name='delete_notification')
 
 
 ]

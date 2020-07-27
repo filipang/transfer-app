@@ -27,7 +27,7 @@ from notifications.signals import notify
 
 from .utils import (
     send_activation_email, send_reset_password_email, send_forgotten_username_email, send_activation_change_email,
-    BasePageMixin
+    BasePageMixin, generate_serializable_list_from_user_list
 )
 from .forms import (
     SignInViaUsernameForm, SignInViaEmailForm, SignInViaEmailOrUsernameForm, SignUpForm,
@@ -421,8 +421,13 @@ class AddFriendView(LoginRequiredMixin, View, BasePageMixin):
 class RemoveFriendView(LoginRequiredMixin, View, BasePageMixin):
     @staticmethod
     def post(request, username):
+        print('JONATHANN')
+        print(username)
+        print('REMOVED')
         user = get_object_or_404(User, username=username)
         Friendship.objects.get(Q(user1=user) | Q(user2=user)).delete()
+        print(user)
+        print(request.user)
         messages.success(request, _(''.join([username, ' has been removed from your friend list.'])))
 
         return JsonResponse({'username': username})
@@ -444,7 +449,7 @@ class AcceptFriendView(LoginRequiredMixin, View, BasePageMixin):
             messages.error(request, _('Friend request doesn\'t exist!'))
 
         return JsonResponse({'username': username,
-                             'friends': context.friends})
+                             'friends': generate_serializable_list_from_user_list(list(context['friends']))}, safe=False)
 
 
 class DeclineFriendView(LoginRequiredMixin, View, BasePageMixin):
@@ -477,6 +482,22 @@ class ClearNotificationsView(LoginRequiredMixin, View, BasePageMixin):
 
 
 class DeleteNotificationView(LoginRequiredMixin, View, BasePageMixin):
-    def post(self, request):
-        request.user.notifications.all().delete()
-        return JsonResponse({'request': 'la dee da'})
+    def post(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk)
+        print('JONASX')
+        print(notification.recipient)
+        print(request.user)
+        if request.user == notification.recipient:
+            notification.delete()
+        return JsonResponse({'id': pk})
+
+
+class FriendListView(LoginRequiredMixin, View, BasePageMixin):
+    def get(self, request):
+        context = self.get_context_data(request=request)
+        print('FRIEND LISTTTT')
+        print(context)
+        print(list(context['friends']))
+        return JsonResponse(generate_serializable_list_from_user_list(list(context['friends'])), safe=False)
+
+

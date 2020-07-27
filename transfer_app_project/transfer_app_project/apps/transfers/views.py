@@ -31,7 +31,8 @@ class LiveTransferView(View, BasePageMixin):
         context.update(dict(username=username, session_id=session_id, is_link=False))
         if request.GET.get('sdp_type') == 'get_sdp':
             print('TEST HERE!!!!!!!!')
-            print(live_transfer_sessions[session_id])
+            if session_id not in live_transfer_sessions:
+                return JsonResponse({"err": "SESSION EXPIRED"})
             if 'receiver' in live_transfer_sessions[session_id]:
                 if 'answer' in live_transfer_sessions[session_id]['receiver']:
                     answer = {'sdpMessage': {
@@ -74,7 +75,7 @@ class LiveTransferView(View, BasePageMixin):
             live_transfer_sessions[session_id][peer_id]['ice_candidates'].append(request.POST.get('sdp'))
             return JsonResponse({'message': 'success', 'session_id': session_id, 'peer_id': peer_id})
 
-        return JsonResponse({'message': 'Unknown/unspecified message type from ' + peer_id})
+        return JsonResponse({'message': 'Unknown/unspecified message'})
 
 
 class LiveTransferLinkView(View, BasePageMixin):
@@ -84,6 +85,8 @@ class LiveTransferLinkView(View, BasePageMixin):
         if request.GET.get('sdp_type') == 'get_sdp':
             print('TEST HERE!!!!!!!!')
             print(live_transfer_sessions[session_id])
+            if 'session_id' not in live_transfer_sessions:
+                return JsonResponse({'err': 'Session expired'})
             if 'receiver' in live_transfer_sessions[session_id]:
                 if 'answer' in live_transfer_sessions[session_id]['receiver']:
                     answer = {'sdpMessage': {
@@ -218,14 +221,15 @@ class DownloadInviteView(View, BasePageMixin):
     @staticmethod
     def post(request, session_id, username):
         user = get_object_or_404(User, username=username)
-
+        print(user)
+        print(request.user)
         print('BEAT IT JUST BEAT IT')
         print(notify.send(request.user,
                           recipient=user,
                           verb=' wants to send you some files!',
                           href="/live_transfer_download/" + session_id,
-                          username=username,
-                          image_path=user.profileimage.image.url,
+                          username=request.user.username,
+                          image_path=request.user.profileimage.image.url,
                           type='NOTIFICATION'))
 
         return JsonResponse({'username': username})

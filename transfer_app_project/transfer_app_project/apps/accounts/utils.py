@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.contrib.auth.models import User
 from .models import Friendship, FriendRequest
 
+
 def send_mail(to, template, context):
     html_content = render_to_string(f'accounts/emails/{template}.html', context)
     text_content = render_to_string(f'accounts/emails/{template}.txt', context)
@@ -54,6 +55,19 @@ def send_forgotten_username_email(email, username):
     }
 
     send_mail(email, 'forgotten_username', context)
+
+
+def generate_serializable_list_from_user_list(user_list):
+    s_list = []
+    for user in user_list:
+        s_user = {'username': user.username,
+                  'imageurl': user.profileimage.image.url}
+
+        s_list.append(s_user)
+
+    print('SEEEEEEEEEEEEEEEEEEEE')
+    print(s_list)
+    return s_list
 
 
 class BasePageMixin(generic.base.ContextMixin):
