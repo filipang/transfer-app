@@ -85,8 +85,9 @@ class LiveTransferLinkView(View, BasePageMixin):
         if request.GET.get('sdp_type') == 'get_sdp':
             print('TEST HERE!!!!!!!!')
             print(live_transfer_sessions[session_id])
-            # if 'session_id' not in live_transfer_sessions:
-            #     return JsonResponse({'err': 'Session expired'})
+            if session_id not in live_transfer_sessions:
+                return JsonResponse({'err': 'Session expired'})
+
             if 'receiver' in live_transfer_sessions[session_id]:
                 if 'answer' in live_transfer_sessions[session_id]['receiver']:
                     answer = {'sdpMessage': {
