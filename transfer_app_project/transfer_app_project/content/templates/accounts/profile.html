@@ -6,12 +6,12 @@
 
 {% block content %}
 
-    <div class = 'background_card drag_effect' id = 'background_card' style="padding:60px;padding-top:130px;padding-left:40px;position:absolute;top:50%;left:50%px;width:500px;z-index:2;background:#e3e3e3;">
-            <img class="profile_img" style="box-shadow: 0 0 20px 0 rgba(0,0,0,0.5),0 20px 30px 0 rgba(0,0,0,0.5);" src="{{user.profileimage.image.url}}" alt="Profile Image">
-            <div class="inline" style="text-align: left;padding-left:30px">
-                <p style="color:black; font-size: 25px">{{username}}</p>
+    <div class = 'background_card drag_effect' id = 'background_card' style="padding:60px;position:absolute;top:50%;left:50%px;width:500px;z-index:2;background:#e3e3e3;">
+            <p style="color:#0d1d59; font-size: 25px;font-weight:500;">{{username}}</p>
+            <img class="profile_img" style="position:absolute;top:50%;left:50%;margin-top:-100px;margin-left:-100px;box-shadow: 0 0 20px 0 rgba(0,0,0,0.5),0 10px 30px 0 rgba(0,0,0,0.5);" src="{{user.profileimage.image.url}}" alt="Profile Image">
+            <div class="inline" style="text-align: center;">
                 {% if username != request.user.username %}
-                    <button style="" {% if can_add %} id="addfriend_btn" {% endif %}>
+                    <button style="margin-top:290px;" {% if can_add %} id="addfriend_btn" {% endif %}>
                         {% if is_friend %}Friend{% else %}
                             {% if is_pending %}
                                 Pending request...
@@ -21,15 +21,16 @@
                         {% endif %}
                     </button>
                 {% else %}
-                    <button style="" {% if can_add %} id="edit_btn" {% endif %}>
-                        {% if is_friend %}Friend{% else %}
-                            {% if is_pending %}
-                                Pending request...
-                                {% else %}
-                                Add friend
-                            {% endif %}
-                        {% endif %}
-                    </button>
+                    <div class="dropdown" aria-labelledby="dropdownMenuLink">
+                        <button style="margin-top:290px;" id="edit_btn" data-toggle="dropdown"  aria-haspopup="true" aria-expanded="false" class="dropdown-item">
+                            Edit profile
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'accounts:change_image' %}">Change profile image</a>
+                            <a class="dropdown-item" href="{% url 'accounts:change_email' %}">Change email</a>
+                            <a class="dropdown-item" href="{% url 'accounts:change_password' %}">Change password</a>
+                        </div>
+                    </div>
                 {% endif %}
             </div>
     </div>

@@ -22,7 +22,7 @@
     <body>
 
         <div class="copied_tooltip">Copied!</div>
-                <div class="container-fluid mt-3" style="position:relative;height:100%;padding:0;overflow-x:hidden;" >
+                <div class="container-fluid mt-3" style="position:relative;height:100%;padding:0;overflow-x:hidden;overflow-y:hidden;" >
                     <div class="background_image" style="background-attachment: fixed;position:absolute;z-index:-2;background-image: url('{% static 'background_space3.jpg' %}');background-position:center;background-repeat:no-repeat;background-size: cover;height:100%;width:100%;"></div>
                     <a href="/" style="z-index: 2;position:absolute;left:18px;top:18px;box-shadow: 0 0 50px 0 rgba(0,0,0,1),0 20px 80px 0 rgba(0,0,0,1);">
                         <img style="width:35px;" src="{% static 'logo.png' %}" alt="Logo">
@@ -104,7 +104,7 @@
                             {% for friend in friends %}
                                 <li class="dropdown small_space_down set_username_friend" style="margin-top:4px;" username_friend="{{ friend.username }}">
                                     <img class="profile_img_friend"  src="{{friend.profileimage.image.url}}" alt="Profile Image">
-                                    <a class="friend_username dropdown-toggle inline set_text_content" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <a class="friend_username dropdown-item inline set_text_content" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         {{ friend.username }}
                                     </a>
 
