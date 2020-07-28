@@ -11,10 +11,10 @@ particlesJS('particles-js',
       },
     },
     "color": {
-      "value": "#ffffff",
+      "value": "#d9d9d9",
     },
     "shape": {
-      "type": "edge",
+      "type": "circle",
       "stroke": {
         "width": 0,
         "color": "#000000",
@@ -24,7 +24,7 @@ particlesJS('particles-js',
       },
     },
     "opacity": {
-      "value": 0.9,
+      "value": 1,
       "random": false,
       "anim": {
         "enable": false,
