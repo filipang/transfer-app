@@ -140,6 +140,7 @@ function connect(){
 
 }
 
+//https://gist.github.com/shacharz/9661930
 function PeerConnectionImpl(originId,targetId,initiator,reliability){
           this.reliable = reliability;
           this.originId = originId;
