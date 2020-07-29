@@ -25,9 +25,6 @@ CONTENT_DIR = os.path.join(BASE_DIR, 'content')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'p^*h5ap=+t-z$e#5llux8=gwlirglt=i+@n2l8dd!7se2dxssj'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 SITE_ID = 1
 # Application definition
 

@@ -316,7 +316,7 @@ PeerConnectionImpl.prototype = {
                                 },
                           });
                         }
-                        progressStatus.textContent = 'Waiting for peer to connect...';
+                        progressStatus.textContent = 'Waiting for peer...';
                         new ClipboardJS('.copy_btn');
                         console.log('Sdp message response: ')
                         console.log(responseJSON);
@@ -597,7 +597,7 @@ function addFilesToQueue(files){
             log('Queued ' + files.length + ' files to send...');
         }
         if(!connected){
-            progressStatus.textContent = "Waiting for peer to connect...(" + queuedFiles.length + " files queued for transfer)";
+            progressStatus.textContent = "Waiting for peer...(" + queuedFiles.length + " files queued for transfer)";
         }
     }
 }
