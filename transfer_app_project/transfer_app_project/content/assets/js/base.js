@@ -110,18 +110,6 @@ particlesJS('particles-js',
     console.log('callback - particles.js config loaded');
 });
 //-----------
-
-
-    $("#sidebar").mCustomScrollbar({
-        theme: "minimal"
-    });
-
-    $('#sidebarCollapse').on('click', function () {
-        $('#sidebar, #content').toggleClass('active');
-        $('.collapse.in').toggleClass('in');
-        $('a[aria-expanded=true]').attr('aria-expanded', 'false');
-    });
-
       $("#listSearch").on("keyup", function() {
         var value = $(this).val().toLowerCase();
         $("#friendList li").filter(function() {
