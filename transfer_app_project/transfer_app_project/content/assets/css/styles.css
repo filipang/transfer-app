@@ -4,6 +4,10 @@
 
 @import "https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700";
 
+.alert {
+    margin-bottom:0px!important;
+}
+
 a.dropdown-item{
     display:block!important;
     padding:5px;
